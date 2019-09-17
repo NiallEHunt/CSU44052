@@ -79,10 +79,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>U:\Year 3\Computer Graphics\Lab 1\Lab 1\freeglut\include;U:\Year 3\Computer Graphics\Lab 1\Lab 1\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\freeglut\include;D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\glew-1.10.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>U:\Year 3\Computer Graphics\Lab 1\Lab 1\freeglut\lib;U:\Year 3\Computer Graphics\Lab 1\Lab 1\glew-1.10.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\glew-1.10.0\lib\Release\Win32;D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\freeglut\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -102,12 +102,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>U:\Year 3\Computer Graphics\Lab 1\Lab 1\glew-1.10.0\include;U:\Year 3\Computer Graphics\Lab 1\Lab 1\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\glew-1.10.0\include;D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\freeglut\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>U:\Year 3\Computer Graphics\Lab 1\Lab 1\freeglut\lib;U:\Year 3\Computer Graphics\Lab 1\Lab 1\glew-1.10.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\freeglut\lib;D:\College\Year 4\Computer Graphics\CSU44052\Lab 1\Lab 1\glew-1.10.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

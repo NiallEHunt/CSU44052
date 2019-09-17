@@ -32,11 +32,12 @@ void main()                                                                     
 static const char* pFS = "                                              \n\
 #version 330                                                            \n\
                                                                         \n\
+in vec4 color;															  \n\
 out vec4 FragColor;                                                      \n\
                                                                           \n\
 void main()                                                               \n\
 {                                                                          \n\
-FragColor = vec4(1.0, 0.0, 0.0, 1.0);									 \n\
+FragColor = color;														\n\
 }";
 
 
@@ -115,7 +116,7 @@ GLuint CompileShaders()
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
 GLuint generateObjectBuffer(GLfloat vertices[], GLfloat colors[]) {
-	GLuint numVertices = 3;
+	GLuint numVertices = 6;
 	// Genderate 1 generic buffer object, called VBO
 	GLuint VBO;
  	glGenBuffers(1, &VBO);

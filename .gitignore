@@ -254,6 +254,7 @@ paket-files/
 *.sln.iml
 
 # CodeRush
+# CodeRush
 .cr/
 
 # Python Tools for Visual Studio (PTVS)
