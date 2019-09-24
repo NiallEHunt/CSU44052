@@ -260,3 +260,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+# Freeglut and Glew
+Computer\ Graphics/freeglut/
+Computer\ Graphics/glew-1.10.0/
+
