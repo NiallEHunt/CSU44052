@@ -204,10 +204,10 @@ inline void aiQuaterniont<TReal>::Interpolate( aiQuaterniont& pOut, const aiQuat
 	{
 		// Standard case (slerp)
 		TReal omega, sinom;
-		omega = std::acos( cosom); // extract theta from dot product's cos theta
-		sinom = std::sin( omega);
-		sclp  = std::sin( (static_cast<TReal>(1.0) - pFactor) * omega) / sinom;
-		sclq  = std::sin( pFactor * omega) / sinom;
+		omega = acos( cosom); // extract theta from dot product's cos theta
+		sinom = sin( omega);
+		sclp  = sin( (static_cast<TReal>(1.0) - pFactor) * omega) / sinom;
+		sclq  = sin( pFactor * omega) / sinom;
 	} else
 	{
 		// Very close, do linear interp (because it's faster)
