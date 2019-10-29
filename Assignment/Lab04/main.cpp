@@ -17,8 +17,8 @@
 
 
 // Model names to be loaded
-#define MESH_NAME "models/Car.dae"
-#define GROUND_MESH_NAME "models/road.dae"
+#define CAR_MESH_NAME "models/Car.dae"
+#define ROAD_MESH_NAME "models/road.dae"
 
 using namespace std;
 GLuint shaderProgramID;
@@ -27,9 +27,11 @@ int width = 1280;
 int height = 720;
 
 GLuint loc1, loc2, loc3;
+float view_z = -10.0f;
+bool cam_lock = true;
 
-Model ground (GROUND_MESH_NAME, vec3(0.0f, -1.0f, 0.0f));
-Model monkey_head(MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model road(ROAD_MESH_NAME, vec3(0.0f, -1.0f, 0.0f));
+Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 
 // Shader Functions- click on + to expand
 #pragma region SHADER_FUNCTIONS
@@ -196,32 +198,38 @@ void display() {
 	mat4 view = identity_mat4();
 	mat4 persp_proj = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
-	view = translate(view, vec3(0.0, 0.0, -10.0f));
+	if(cam_lock){
+		view_z = -10.0f + car.pos.v[2];
+	}
+
+	view = rotate_y_deg(view, 180.0f);
+	view = translate(view, vec3(0.0f, -2.5f, view_z));
+	view = rotate_y_deg(view, -car.rot.v[1]);
 
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
 
 	// 
-	// GROUND
+	// Road
 	//
-	mat4 ground_model = identity_mat4();
-	ground_model = translate(ground_model, ground.pos);
+	mat4 road_model = identity_mat4();
+	road_model = translate(road_model, road.pos);
 
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, ground_model.m);
-	glBindVertexArray(ground.vao);
-	glDrawArrays(GL_TRIANGLES, 0, ground.model_data.mPointCount);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
+	glBindVertexArray(road.vao);
+	glDrawArrays(GL_TRIANGLES, 0, road.model_data.mPointCount);
 	
 	// 
 	// Monkey Head
 	//
 	mat4 monkey_model = identity_mat4();
-	monkey_model = rotate_y_deg(monkey_model, monkey_head.rot.v[1]);
-	monkey_model = translate(monkey_model, monkey_head.pos);
+	monkey_model = rotate_y_deg(monkey_model, car.rot.v[1]);
+	monkey_model = translate(monkey_model, car.pos);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, monkey_model.m);
-	glBindVertexArray(monkey_head.vao);
-	glDrawArrays(GL_TRIANGLES, 0, monkey_head.model_data.mPointCount);
+	glBindVertexArray(car.vao);
+	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
 
 	glutSwapBuffers();
 }
@@ -229,16 +237,16 @@ void display() {
 
 void updateScene() {
 
-	static DWORD last_time = 0;
-	DWORD curr_time = timeGetTime();
-	if (last_time == 0)
-		last_time = curr_time;
-	float delta = (curr_time - last_time) * 0.001f;
-	last_time = curr_time;
+	//static DWORD last_time = 0;
+	//DWORD curr_time = timeGetTime();
+	//if (last_time == 0)
+	//	last_time = curr_time;
+	//float delta = (curr_time - last_time) * 0.001f;
+	//last_time = curr_time;
 
-	// Rotate the model slowly around the y axis at 20 degrees per second
-	monkey_head.rot += vec3(0.0f, (20.0f * delta), 0.0f);
-	monkey_head.rot.v[1] = fmodf(monkey_head.rot.v[1], 360.0f);
+	//// Rotate the model slowly around the y axis at 20 degrees per second
+	//car.rot += vec3(0.0f, (20.0f * delta), 0.0f);
+	//car.rot.v[1] = fmodf(car.rot.v[1], 360.0f);
 
 	// Draw the next frame
 	glutPostRedisplay();
@@ -250,17 +258,26 @@ void init()
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
 
-	glGenVertexArrays(1, &ground.vao);
-	generateObjectBufferMesh(ground);
+	glGenVertexArrays(1, &road.vao);
+	generateObjectBufferMesh(road);
 
-	glGenVertexArrays(1, &monkey_head.vao);
-	generateObjectBufferMesh(monkey_head);
+	glGenVertexArrays(1, &car.vao);
+	generateObjectBufferMesh(car);
 }
 
 // Placeholder code for the keypress
 void keypress(unsigned char key, int x, int y) {
-	if (key == 'x') {
-		monkey_head.pos.v[0] += 5.0f;
+	if (key == 'w') {
+		car.pos.v[2] += 0.5f;
+	}
+	if (key == 's') {
+		car.pos.v[2] -= 0.5f;
+	}
+	if (key == 'a') {
+		car.rot.v[1] += 1.0f;
+	}
+	if (key == 'd') {
+		car.rot.v[1] -= 1.0f;
 	}
 }
 
