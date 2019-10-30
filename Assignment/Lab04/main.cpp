@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 // Windows includes (For Time, IO, etc.)
 #include <windows.h>
 #include <mmsystem.h>
@@ -15,6 +17,9 @@
 #include "maths_funcs.h"
 #include "Model.h"
 
+#define X 0
+#define Y 1
+#define Z 2
 
 // Model names to be loaded
 #define CAR_MESH_NAME "models/Car.dae"
@@ -27,7 +32,7 @@ int width = 1280;
 int height = 720;
 
 GLuint loc1, loc2, loc3;
-float view_z = -10.0f;
+vec3 view(0.0f, 0.0f, -10.0f);
 bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, -1.0f, 0.0f));
@@ -195,20 +200,21 @@ void display() {
 
 
 	// Root of the Hierarchy
-	mat4 view = identity_mat4();
+	mat4 view_mat = identity_mat4();
 	mat4 persp_proj = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
-	if(cam_lock){
-		view_z = -10.0f + car.pos.v[2];
+	if (cam_lock) {
+		view.v[Z] = car.pos.v[Z] - (10.0f * cosf(car.rot.v[Y] * M_PI / 180.0f));
+		view.v[X] = car.pos.v[X] - (10.0f * sinf(car.rot.v[Y] * M_PI / 180.0f));
 	}
 
-	view = rotate_y_deg(view, 180.0f);
-	view = translate(view, vec3(0.0f, -2.5f, view_z));
-	view = rotate_y_deg(view, -car.rot.v[1]);
+	view_mat = rotate_y_deg(view_mat, 180.0f);
+	view_mat = translate(view_mat, vec3(view.v[X], -2.5f, view.v[Z]));
+	view_mat = rotate_y_deg(view_mat, -car.rot.v[Y]);
 
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
-	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
+	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
 
 	// 
 	// Road
@@ -221,13 +227,13 @@ void display() {
 	glDrawArrays(GL_TRIANGLES, 0, road.model_data.mPointCount);
 	
 	// 
-	// Monkey Head
+	// Car
 	//
-	mat4 monkey_model = identity_mat4();
-	monkey_model = rotate_y_deg(monkey_model, car.rot.v[1]);
-	monkey_model = translate(monkey_model, car.pos);
+	mat4 car_model = identity_mat4();
+	car_model = rotate_y_deg(car_model, car.rot.v[1]);
+	car_model = translate(car_model, car.pos);
 
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, monkey_model.m);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(car.vao);
 	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
 
@@ -268,16 +274,18 @@ void init()
 // Placeholder code for the keypress
 void keypress(unsigned char key, int x, int y) {
 	if (key == 'w') {
-		car.pos.v[2] += 0.5f;
+		car.pos.v[X] += 0.5f * sinf(car.rot.v[Y] * M_PI / 180.0f);
+		car.pos.v[Z] += 0.5f * cosf(car.rot.v[Y] * M_PI / 180.0f);
 	}
 	if (key == 's') {
-		car.pos.v[2] -= 0.5f;
+		car.pos.v[X] -= 0.5f * sinf(car.rot.v[Y] * M_PI / 180.0f);
+		car.pos.v[Z] -= 0.5f * cosf(car.rot.v[Y] * M_PI / 180.0f);
 	}
 	if (key == 'a') {
-		car.rot.v[1] += 1.0f;
+		car.rot.v[Y] += 1.0f;
 	}
 	if (key == 'd') {
-		car.rot.v[1] -= 1.0f;
+		car.rot.v[Y] -= 1.0f;
 	}
 }
 
