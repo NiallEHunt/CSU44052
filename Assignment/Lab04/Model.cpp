@@ -1,5 +1,7 @@
 #include "Model.h"
 
+Model::Model() { }
+
 Model::Model(const char* mesh_name, vec3 starting_pos)
 {
 	model_data = load_mesh(mesh_name);

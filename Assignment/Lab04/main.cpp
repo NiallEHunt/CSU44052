@@ -16,6 +16,7 @@
 // Project includes
 #include "maths_funcs.h"
 #include "Model.h"
+#include "Camera.h"
 
 #define X 0
 #define Y 1
@@ -37,6 +38,7 @@ bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, -1.0f, 0.0f));
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
 #pragma region SHADER_FUNCTIONS
@@ -209,8 +211,8 @@ void display() {
 	}
 
 	view_mat = rotate_y_deg(view_mat, 180.0f);
-	view_mat = translate(view_mat, vec3(view.v[X], -2.5f, view.v[Z]));
-	view_mat = rotate_y_deg(view_mat, -car.rot.v[Y]);
+	view_mat = translate(view_mat, camera.pos);
+	view_mat = rotate_y_deg(view_mat, camera.rot.v[Y]);
 
 	// update uniforms & draw
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
@@ -257,6 +259,7 @@ void updateScene() {
 	// Draw the next frame
 
 	car.update();
+	camera.update();
 
 	glutPostRedisplay();
 }
@@ -272,24 +275,55 @@ void init()
 
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
+
+	camera.lock_cam(&car);
 }
 
 void keyDown(unsigned char key, int x, int y) {
-	if (key == 'w') {
+	// Move car when cam_lock is on 
+	if (key == 'w' && camera.cam_lock) {
 		car.isMoving = true;
 		car.vel.v[X] = 0.01f;
 		car.vel.v[Z] = 0.01f;
 	}
-	if (key == 's') {
+	if (key == 's' && camera.cam_lock) {
 		car.isMoving = true;
 		car.vel.v[X] = -0.01f;
 		car.vel.v[Z] = -0.01f;
 	}
-	if (key == 'a') {
+	if (key == 'a' && camera.cam_lock) {
 		car.rot_vel.v[Y] = 0.1f;
 	}
-	if (key == 'd') {
+	if (key == 'd' && camera.cam_lock) {
 		car.rot_vel.v[Y] = -0.1f;
+	}
+	
+	// Flip cam_lock
+	if (key == 'c') {
+		if (camera.cam_lock) {
+			camera.unlock_cam();
+		}
+		else {
+			camera.lock_cam(&car);
+		}
+	}
+
+	// Move view when cam_lock is off
+	if (key == 'w' && !camera.cam_lock) {
+		camera.isMoving = true;
+		camera.vel.v[X] = -0.01f;
+		camera.vel.v[Z] = -0.01f;
+	}
+	if (key == 's' && !camera.cam_lock) {
+		camera.isMoving = true;
+		camera.vel.v[X] = 0.01f;
+		camera.vel.v[Z] = 0.01f;
+	}
+	if (key == 'a' && !camera.cam_lock) {
+		camera.rot_vel.v[Y] = -0.1f;
+	}
+	if (key == 'd' && !camera.cam_lock) {
+		camera.rot_vel.v[Y] = 0.1f;
 	}
 }
 
@@ -298,9 +332,14 @@ void keyUp(unsigned char key, int x, int y) {
 		car.isMoving = false;
 		car.vel.v[X] = 0.0f;
 		car.vel.v[Z] = 0.0f;
+		
+		camera.isMoving = false;
+		camera.vel.v[X] = 0.0f;
+		camera.vel.v[Z] = 0.0f;
 	}
 	if (key == 'a' || key == 'd') {
 		car.rot_vel.v[Y] = 0.0f;
+		camera.rot_vel.v[Y] = 0.0f;
 	}
 }
 

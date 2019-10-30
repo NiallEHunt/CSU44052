@@ -27,6 +27,7 @@ typedef struct
 class Model
 {
 public:
+	Model();
 	Model(const char* mesh_name, vec3 starting_pos);
 	GLuint vao;
 	vec3 pos;
