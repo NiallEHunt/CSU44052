@@ -255,6 +255,9 @@ void updateScene() {
 	//car.rot.v[1] = fmodf(car.rot.v[1], 360.0f);
 
 	// Draw the next frame
+
+	car.update();
+
 	glutPostRedisplay();
 }
 
@@ -271,21 +274,33 @@ void init()
 	generateObjectBufferMesh(car);
 }
 
-// Placeholder code for the keypress
-void keypress(unsigned char key, int x, int y) {
+void keyDown(unsigned char key, int x, int y) {
 	if (key == 'w') {
-		car.pos.v[X] += 0.5f * sinf(car.rot.v[Y] * M_PI / 180.0f);
-		car.pos.v[Z] += 0.5f * cosf(car.rot.v[Y] * M_PI / 180.0f);
+		car.isMoving = true;
+		car.vel.v[X] = 0.01f;
+		car.vel.v[Z] = 0.01f;
 	}
 	if (key == 's') {
-		car.pos.v[X] -= 0.5f * sinf(car.rot.v[Y] * M_PI / 180.0f);
-		car.pos.v[Z] -= 0.5f * cosf(car.rot.v[Y] * M_PI / 180.0f);
+		car.isMoving = true;
+		car.vel.v[X] = -0.01f;
+		car.vel.v[Z] = -0.01f;
 	}
 	if (key == 'a') {
-		car.rot.v[Y] += 1.0f;
+		car.rot_vel.v[Y] = 0.1f;
 	}
 	if (key == 'd') {
-		car.rot.v[Y] -= 1.0f;
+		car.rot_vel.v[Y] = -0.1f;
+	}
+}
+
+void keyUp(unsigned char key, int x, int y) {
+	if (key == 'w' || key == 's') {
+		car.isMoving = false;
+		car.vel.v[X] = 0.0f;
+		car.vel.v[Z] = 0.0f;
+	}
+	if (key == 'a' || key == 'd') {
+		car.rot_vel.v[Y] = 0.0f;
 	}
 }
 
@@ -300,7 +315,8 @@ int main(int argc, char** argv) {
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
 	glutIdleFunc(updateScene);
-	glutKeyboardFunc(keypress);
+	glutKeyboardFunc(keyDown);
+	glutKeyboardUpFunc(keyUp);
 
 	// A call to glewInit() must be done after glut is initialized!
 	GLenum res = glewInit();

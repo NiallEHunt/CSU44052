@@ -4,12 +4,26 @@ Model::Model(const char* mesh_name, vec3 starting_pos)
 {
 	model_data = load_mesh(mesh_name);
 	pos = starting_pos;
+	isMoving = false;
 }
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
 MESH LOADING FUNCTION
 ----------------------------------------------------------------------------*/
+
+void Model::update()
+{
+	vec3 new_vel = vel;
+
+	if (isMoving) {
+		new_vel.v[0] = vel.v[0] * sinf(rot.v[1] * M_PI / 180.0f);
+		new_vel.v[2] = vel.v[2] * cosf(rot.v[1] * M_PI / 180.0f);
+	}
+
+	pos += new_vel;
+	rot += rot_vel;
+}
 
 ModelData Model::load_mesh(const char* file_name) {
 	ModelData modelData;

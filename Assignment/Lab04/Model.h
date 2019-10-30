@@ -1,4 +1,7 @@
 #pragma once
+
+#define _USE_MATH_DEFINES
+
 // Windows includes
 #include <vector>
 
@@ -28,8 +31,11 @@ public:
 	GLuint vao;
 	vec3 pos;
 	vec3 vel;
+	vec3 rot_vel;
 	vec3 rot;
+	bool isMoving;
 	Model::ModelData model_data;
+	void update();
 private:
 	ModelData load_mesh(const char* file_name);
 };
