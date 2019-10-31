@@ -1,7 +1,5 @@
 #include "Model.h"
 
-Model::Model() { }
-
 Model::Model(const char* mesh_name, vec3 starting_pos)
 {
 	model_data = load_mesh(mesh_name);
@@ -9,10 +7,10 @@ Model::Model(const char* mesh_name, vec3 starting_pos)
 	isMoving = false;
 }
 
-#pragma region MESH LOADING
-/*----------------------------------------------------------------------------
-MESH LOADING FUNCTION
-----------------------------------------------------------------------------*/
+Model::Model(const char* mesh_name, const char* texture_name, vec3 starting_pos) : Model(mesh_name, starting_pos)
+{
+	load_texture(texture_name);
+}
 
 void Model::update()
 {
@@ -26,6 +24,11 @@ void Model::update()
 	pos += new_vel;
 	rot += rot_vel;
 }
+
+#pragma region MESH LOADING
+/*----------------------------------------------------------------------------
+MESH LOADING FUNCTION
+----------------------------------------------------------------------------*/
 
 ModelData Model::load_mesh(const char* file_name) {
 	ModelData modelData;
@@ -78,5 +81,15 @@ ModelData Model::load_mesh(const char* file_name) {
 	aiReleaseImport(scene);
 	return modelData;
 }
-
 #pragma endregion MESH LOADING
+
+#pragma region TEXTURE LOADING
+/*----------------------------------------------------------------------------
+TEXTURE LOADING FUNCTION
+----------------------------------------------------------------------------*/
+
+void Model::load_texture(const char* texture_name)
+{
+	glGenTextures(1, texture);
+}
+#pragma endregion TEXTURE LOADING

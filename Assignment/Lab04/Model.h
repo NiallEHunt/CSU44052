@@ -27,16 +27,15 @@ typedef struct
 class Model
 {
 public:
-	Model();
 	Model(const char* mesh_name, vec3 starting_pos);
+	Model(const char* mesh_name, const char* texture_name, vec3 starting_pos);
 	GLuint vao;
-	vec3 pos;
-	vec3 vel;
-	vec3 rot_vel;
-	vec3 rot;
+	GLuint* texture;
+	vec3 pos, vel, rot, rot_vel, scale;
 	bool isMoving;
 	Model::ModelData model_data;
 	void update();
 private:
 	ModelData load_mesh(const char* file_name);
+	void load_texture(const char* texture_name);
 };

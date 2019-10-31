@@ -24,20 +24,23 @@
 
 // Model names to be loaded
 #define CAR_MESH_NAME "models/Car.dae"
-#define ROAD_MESH_NAME "models/road.dae"
+#define ROAD_MESH_NAME "models/road.obj"
+#define TREE_MESH_NAME "models/tree.obj"
 
 using namespace std;
 GLuint shaderProgramID;
 
-int width = 1280;
-int height = 720;
+int width = 1600;
+int height = 900;
 
 GLuint loc1, loc2, loc3;
 vec3 view(0.0f, 0.0f, -10.0f);
 bool cam_lock = true;
 
-Model road(ROAD_MESH_NAME, vec3(0.0f, -1.0f, 0.0f));
+Model road(ROAD_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model tree1(TREE_MESH_NAME, vec3(3.0f, 0.0f, 0.0f));
+Model tree2(TREE_MESH_NAME, vec3(3.0f, 0.0f, 5.0f));
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
@@ -163,10 +166,10 @@ void generateObjectBufferMesh(Model model) {
 	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[0], GL_STATIC_DRAW);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	//	unsigned int vt_vbo = 0;
-	//	glGenBuffers (1, &vt_vbo);
-	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	//	glBufferData (GL_ARRAY_BUFFER, monkey_head_data.mTextureCoords * sizeof (vec2), &monkey_head_data.mTextureCoords[0], GL_STATIC_DRAW);
+	/*unsigned int vt_vbo = 0;
+	glGenBuffers (1, &vt_vbo);
+	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	glBufferData (GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof (vec2), &model.model_data.mTextureCoords[0], GL_STATIC_DRAW);*/
 
 	glBindVertexArray(model.vao);
 
@@ -179,9 +182,9 @@ void generateObjectBufferMesh(Model model) {
 	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	//	glEnableVertexAttribArray (loc3);
-	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	//	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	/*glEnableVertexAttribArray (loc3);
+	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
+	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);*/
 }
 #pragma endregion VBO_FUNCTIONS
 
@@ -223,7 +226,8 @@ void display() {
 	//
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, road.pos);
-	road_model = scale(road_model, vec3(10.0f, 0.0f, 10.0f));
+	road_model = rotate_y_deg(road_model, 90.0f);
+	//road_model = scale(road_model, vec3(10.0f, 0.1f, 10.0f));
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(road.vao);
@@ -239,6 +243,25 @@ void display() {
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(car.vao);
 	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
+
+	// 
+	// Trees
+	//
+	mat4 tree_model = identity_mat4();
+	tree_model = scale(tree_model, tree1.scale);
+	tree_model = translate(tree_model, tree1.pos);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+	glBindVertexArray(tree1.vao);
+	glDrawArrays(GL_TRIANGLES, 0, tree1.model_data.mPointCount);
+
+	tree_model = identity_mat4();
+	tree_model = scale(tree_model, tree2.scale);
+	tree_model = translate(tree_model, tree2.pos);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+	glBindVertexArray(tree2.vao);
+	glDrawArrays(GL_TRIANGLES, 0, tree2.model_data.mPointCount);
 
 	glutSwapBuffers();
 }
@@ -262,6 +285,14 @@ void init()
 
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
+	
+	glGenVertexArrays(1, &tree1.vao);
+	generateObjectBufferMesh(tree1);
+	tree1.scale = vec3(0.05f, 0.05f, 0.05f);
+	
+	glGenVertexArrays(1, &tree2.vao);
+	generateObjectBufferMesh(tree2);
+	tree2.scale = vec3(0.05f, 0.05f, 0.05f);
 
 	camera.lock_cam(&car);
 }
