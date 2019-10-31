@@ -3,6 +3,7 @@
 Camera::Camera(vec3 starting_pos)
 {
 	pos = starting_pos;
+	lock_height = starting_pos.v[1];
 	isMoving = false;
 	cam_lock = false;
 }
@@ -10,8 +11,9 @@ Camera::Camera(vec3 starting_pos)
 void Camera::update()
 {
 	if (cam_lock){
-		pos.v[2] = model->pos.v[2] - (10.0f * cosf(model->rot.v[1] * M_PI / 180.0f));
 		pos.v[0] = model->pos.v[0] - (10.0f * sinf(model->rot.v[1] * M_PI / 180.0f));
+		pos.v[1] = lock_height;
+		pos.v[2] = model->pos.v[2] - (10.0f * cosf(model->rot.v[1] * M_PI / 180.0f));
 
 		rot.v[1] = -model->rot.v[1];
 	}

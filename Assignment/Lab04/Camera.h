@@ -23,5 +23,6 @@ public:
 	void unlock_cam();
 private:
 	Model* model;
+	float lock_height;
 };
 

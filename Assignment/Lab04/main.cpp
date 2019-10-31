@@ -245,20 +245,6 @@ void display() {
 
 
 void updateScene() {
-
-	//static DWORD last_time = 0;
-	//DWORD curr_time = timeGetTime();
-	//if (last_time == 0)
-	//	last_time = curr_time;
-	//float delta = (curr_time - last_time) * 0.001f;
-	//last_time = curr_time;
-
-	//// Rotate the model slowly around the y axis at 20 degrees per second
-	//car.rot += vec3(0.0f, (20.0f * delta), 0.0f);
-	//car.rot.v[1] = fmodf(car.rot.v[1], 360.0f);
-
-	// Draw the next frame
-
 	car.update();
 	camera.update();
 
@@ -329,6 +315,12 @@ void keyDown(unsigned char key, int x, int y) {
 		if (key == 'd') {
 			camera.rot_vel.v[Y] = 0.1f;
 		}
+		if (key == 'q') {
+			camera.vel.v[Y] = -0.01f;
+		}
+		if (key == 'e') {
+			camera.vel.v[Y] = 0.01f;
+		}
 	}
 }
 
@@ -345,6 +337,9 @@ void keyUp(unsigned char key, int x, int y) {
 	if (key == 'a' || key == 'd') {
 		car.rot_vel.v[Y] = 0.0f;
 		camera.rot_vel.v[Y] = 0.0f;
+	}
+	if (key == 'q' || key == 'e') {
+		camera.vel.v[Y] = 0.0f;
 	}
 }
 
