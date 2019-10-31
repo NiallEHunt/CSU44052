@@ -203,7 +203,7 @@ void display() {
 
 	// Root of the Hierarchy
 	mat4 view_mat = identity_mat4();
-	mat4 persp_proj = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	mat4 persp_proj = perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
 	if (cam_lock) {
 		view.v[Z] = car.pos.v[Z] - (10.0f * cosf(car.rot.v[Y] * M_PI / 180.0f));
@@ -223,6 +223,7 @@ void display() {
 	//
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, road.pos);
+	road_model = scale(road_model, vec3(10.0f, 0.0f, 10.0f));
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(road.vao);
@@ -281,21 +282,23 @@ void init()
 
 void keyDown(unsigned char key, int x, int y) {
 	// Move car when cam_lock is on 
-	if (key == 'w' && camera.cam_lock) {
-		car.isMoving = true;
-		car.vel.v[X] = 0.01f;
-		car.vel.v[Z] = 0.01f;
-	}
-	if (key == 's' && camera.cam_lock) {
-		car.isMoving = true;
-		car.vel.v[X] = -0.01f;
-		car.vel.v[Z] = -0.01f;
-	}
-	if (key == 'a' && camera.cam_lock) {
-		car.rot_vel.v[Y] = 0.1f;
-	}
-	if (key == 'd' && camera.cam_lock) {
-		car.rot_vel.v[Y] = -0.1f;
+	if (camera.cam_lock) {
+		if (key == 'w') {
+			car.isMoving = true;
+			car.vel.v[X] = 0.01f;
+			car.vel.v[Z] = 0.01f;
+		}
+		if (key == 's') {
+			car.isMoving = true;
+			car.vel.v[X] = -0.01f;
+			car.vel.v[Z] = -0.01f;
+		}
+		if (key == 'a') {
+			car.rot_vel.v[Y] = 0.1f;
+		}
+		if (key == 'd') {
+			car.rot_vel.v[Y] = -0.1f;
+		}
 	}
 	
 	// Flip cam_lock
@@ -309,21 +312,23 @@ void keyDown(unsigned char key, int x, int y) {
 	}
 
 	// Move view when cam_lock is off
-	if (key == 'w' && !camera.cam_lock) {
-		camera.isMoving = true;
-		camera.vel.v[X] = -0.01f;
-		camera.vel.v[Z] = -0.01f;
-	}
-	if (key == 's' && !camera.cam_lock) {
-		camera.isMoving = true;
-		camera.vel.v[X] = 0.01f;
-		camera.vel.v[Z] = 0.01f;
-	}
-	if (key == 'a' && !camera.cam_lock) {
-		camera.rot_vel.v[Y] = -0.1f;
-	}
-	if (key == 'd' && !camera.cam_lock) {
-		camera.rot_vel.v[Y] = 0.1f;
+	if (!camera.cam_lock) {
+		if (key == 'w') {
+			camera.isMoving = true;
+			camera.vel.v[X] = -0.01f;
+			camera.vel.v[Z] = -0.01f;
+		}
+		if (key == 's') {
+			camera.isMoving = true;
+			camera.vel.v[X] = 0.01f;
+			camera.vel.v[Z] = 0.01f;
+		}
+		if (key == 'a') {
+			camera.rot_vel.v[Y] = -0.1f;
+		}
+		if (key == 'd') {
+			camera.rot_vel.v[Y] = 0.1f;
+		}
 	}
 }
 

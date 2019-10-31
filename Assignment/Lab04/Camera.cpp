@@ -19,8 +19,8 @@ void Camera::update()
 		vec3 new_vel = vel;
 
 		if (isMoving) {
-			new_vel.v[0] = vel.v[0] * sinf(rot.v[1] * M_PI / 180.0f);
-			new_vel.v[2] = vel.v[2] * cosf(rot.v[1] * M_PI / 180.0f);
+			new_vel.v[0] = vel.v[0] * -sinf(-rot.v[1] * M_PI / 180.0f);
+			new_vel.v[2] = vel.v[2] * -cosf(-rot.v[1] * M_PI / 180.0f);
 		}
 
 		pos += new_vel;
