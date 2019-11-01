@@ -37,10 +37,9 @@ GLuint loc1, loc2, loc3;
 vec3 view(0.0f, 0.0f, -10.0f);
 bool cam_lock = true;
 
-Model road(ROAD_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
-Model tree1(TREE_MESH_NAME, vec3(3.0f, 0.0f, 0.0f));
-Model tree2(TREE_MESH_NAME, vec3(3.0f, 0.0f, 5.0f));
+Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, 0.0f));
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
@@ -248,20 +247,40 @@ void display() {
 	// Trees
 	//
 	mat4 tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree1.scale);
-	tree_model = translate(tree_model, tree1.pos);
+	tree_model = scale(tree_model, tree.scale);
+	tree_model = translate(tree_model, tree.pos);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glBindVertexArray(tree1.vao);
-	glDrawArrays(GL_TRIANGLES, 0, tree1.model_data.mPointCount);
+	glBindVertexArray(tree.vao);
+	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
 
 	tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree2.scale);
-	tree_model = translate(tree_model, tree2.pos);
+	tree_model = scale(tree_model, tree.scale);
+	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, 5.0f));
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glBindVertexArray(tree2.vao);
-	glDrawArrays(GL_TRIANGLES, 0, tree2.model_data.mPointCount);
+	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+
+	tree_model = identity_mat4();
+	tree_model = scale(tree_model, tree.scale);
+	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, -5.0f));
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+	
+	tree_model = identity_mat4();
+	tree_model = scale(tree_model, tree.scale);
+	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, 10.0f));
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+	
+	tree_model = identity_mat4();
+	tree_model = scale(tree_model, tree.scale);
+	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, -10.0f));
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
 
 	glutSwapBuffers();
 }
@@ -286,13 +305,9 @@ void init()
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
 	
-	glGenVertexArrays(1, &tree1.vao);
-	generateObjectBufferMesh(tree1);
-	tree1.scale = vec3(0.05f, 0.05f, 0.05f);
-	
-	glGenVertexArrays(1, &tree2.vao);
-	generateObjectBufferMesh(tree2);
-	tree2.scale = vec3(0.05f, 0.05f, 0.05f);
+	glGenVertexArrays(1, &tree.vao);
+	generateObjectBufferMesh(tree);
+	tree.scale = vec3(0.05f, 0.05f, 0.05f);
 
 	camera.lock_cam(&car);
 }
