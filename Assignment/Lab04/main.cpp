@@ -241,7 +241,9 @@ void display() {
 	//
 	for (size_t i = 0; i < NUMBER_OF_TREES; i++)
 	{
-		vec3 tree_pos = tree.pos + vec3(0.0f, 0.0f, 5.0f * i);
+		float new_x = 5.0f * sinf(tree.rot.v[Y] * M_PI / 180.0f) * i;
+		float new_z = 5.0f * cosf(tree.rot.v[Y] * M_PI / 180.0f) * i;
+		vec3 tree_pos = tree.pos + vec3(new_x, 0.0f, new_z);
 		mat4 tree_model = identity_mat4();
 		tree_model = scale(tree_model, tree.scale);
 		tree_model = translate(tree_model, tree_pos);
