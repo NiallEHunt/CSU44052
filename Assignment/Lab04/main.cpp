@@ -22,6 +22,8 @@
 #define Y 1
 #define Z 2
 
+#define NUMBER_OF_TREES 7
+
 // Model names to be loaded
 #define CAR_MESH_NAME "models/Car.dae"
 #define ROAD_MESH_NAME "models/road.obj"
@@ -39,7 +41,7 @@ bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
-Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, 0.0f));
+Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
@@ -246,41 +248,17 @@ void display() {
 	// 
 	// Trees
 	//
-	mat4 tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree.scale);
-	tree_model = translate(tree_model, tree.pos);
+	for (size_t i = 0; i < NUMBER_OF_TREES; i++)
+	{
+		vec3 tree_pos = tree.pos + vec3(0.0f, 0.0f, 5.0f * i);
+		mat4 tree_model = identity_mat4();
+		tree_model = scale(tree_model, tree.scale);
+		tree_model = translate(tree_model, tree_pos);
 
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glBindVertexArray(tree.vao);
-	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
-
-	tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree.scale);
-	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, 5.0f));
-
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
-
-	tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree.scale);
-	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, -5.0f));
-
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
-	
-	tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree.scale);
-	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, 10.0f));
-
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
-	
-	tree_model = identity_mat4();
-	tree_model = scale(tree_model, tree.scale);
-	tree_model = translate(tree_model, tree.pos + vec3(0.0f, 0.0f, -10.0f));
-
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-	glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+		glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+		glBindVertexArray(tree.vao);
+		glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+	}
 
 	glutSwapBuffers();
 }
