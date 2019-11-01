@@ -36,7 +36,6 @@ int width = 1600;
 int height = 900;
 
 GLuint loc1, loc2, loc3;
-vec3 view(0.0f, 0.0f, -10.0f);
 bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
@@ -198,22 +197,15 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shaderProgramID);
 
-
 	//Declare your uniform variables that will be used in your shader
 	int matrix_location = glGetUniformLocation(shaderProgramID, "model");
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
 
-
 	// Root of the Hierarchy
 	mat4 view_mat = identity_mat4();
-	mat4 persp_proj = perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
-
-	if (cam_lock) {
-		view.v[Z] = car.pos.v[Z] - (10.0f * cosf(car.rot.v[Y] * M_PI / 180.0f));
-		view.v[X] = car.pos.v[X] - (10.0f * sinf(car.rot.v[Y] * M_PI / 180.0f));
-	}
-
+	mat4 persp_proj = perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	
 	view_mat = rotate_y_deg(view_mat, 180.0f);
 	view_mat = translate(view_mat, camera.pos);
 	view_mat = rotate_y_deg(view_mat, camera.rot.v[Y]);
@@ -228,7 +220,6 @@ void display() {
 	mat4 road_model = identity_mat4();
 	road_model = translate(road_model, road.pos);
 	road_model = rotate_y_deg(road_model, 90.0f);
-	//road_model = scale(road_model, vec3(10.0f, 0.1f, 10.0f));
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(road.vao);
