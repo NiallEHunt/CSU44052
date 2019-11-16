@@ -26,7 +26,7 @@
 #define NUMBER_OF_TREES 7
 
 // Model names to be loaded
-#define CAR_MESH_NAME "models/car.dae"
+#define CAR_MESH_NAME "models/car.obj"
 #define CAR_WHEEL_MESH_NAME "models/wheel.obj"
 #define ROAD_MESH_NAME "models/road.obj"
 #define TREE_MESH_NAME "models/tree.obj"
@@ -41,9 +41,14 @@ GLuint loc1, loc2, loc3;
 bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
-Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
-Wheel wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+
+Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Wheel fl_wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+Wheel fr_wheel(CAR_WHEEL_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
+Wheel bl_wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
+Wheel br_wheel(CAR_WHEEL_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
+
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
@@ -161,18 +166,18 @@ void generateObjectBufferMesh(Model model) {
 
 	glGenBuffers(1, &vp_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
-	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mVertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mVertices[X], GL_STATIC_DRAW);
 
 	unsigned int vn_vbo = 0;
 	glGenBuffers(1, &vn_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
-	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[X], GL_STATIC_DRAW);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
 	/*unsigned int vt_vbo = 0;
 	glGenBuffers (1, &vt_vbo);
 	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData (GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof (vec2), &model.model_data.mTextureCoords[0], GL_STATIC_DRAW);*/
+	glBufferData (GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof (vec2), &model.model_data.mTextureCoords[X], GL_STATIC_DRAW);*/
 
 	glBindVertexArray(model.vao);
 
@@ -233,23 +238,63 @@ void display() {
 	// Car
 	//
 	mat4 car_model = identity_mat4();
-	car_model = rotate_y_deg(car_model, car.rot.v[1]);
+	car_model = rotate_y_deg(car_model, car.rot.v[Y]);
 	car_model = translate(car_model, car.pos);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(car.vao);
 	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
 
+
+	//
 	// Wheels
+	//
+
+	// Front Left
 	mat4 wheel_model = identity_mat4();
-	wheel_model = rotate_x_deg(wheel_model, wheel.rot.v[0]);
-	wheel_model = translate(wheel_model, wheel.pos);
+	wheel_model = rotate_y_deg(wheel_model, fl_wheel.rot.v[Y]);
+	wheel_model = rotate_x_deg(wheel_model, fl_wheel.rot.v[X]);
+	wheel_model = translate(wheel_model, fl_wheel.pos);
 
-	mat4 global_fl_tyre = car_model * wheel_model;
+	wheel_model = car_model * wheel_model;
 
-	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_tyre.m);
-	glBindVertexArray(wheel.vao);
-	glDrawArrays(GL_TRIANGLES, 0, wheel.model_data.mPointCount);
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(fl_wheel.vao);
+	glDrawArrays(GL_TRIANGLES, 0, fl_wheel.model_data.mPointCount);
+
+	// Front Right
+	wheel_model = identity_mat4();
+	wheel_model = rotate_y_deg(wheel_model, fr_wheel.rot.v[Y]);
+	wheel_model = rotate_x_deg(wheel_model, fr_wheel.rot.v[X]);
+	wheel_model = translate(wheel_model, fr_wheel.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(fr_wheel.vao);
+	glDrawArrays(GL_TRIANGLES, 0, fr_wheel.model_data.mPointCount);
+
+	// Back Left
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, bl_wheel.rot.v[X]);
+	wheel_model = translate(wheel_model, bl_wheel.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(bl_wheel.vao);
+	glDrawArrays(GL_TRIANGLES, 0, bl_wheel.model_data.mPointCount);
+
+	// Back Right
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, br_wheel.rot.v[X]);
+	wheel_model = translate(wheel_model, br_wheel.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(br_wheel.vao);
+	glDrawArrays(GL_TRIANGLES, 0, br_wheel.model_data.mPointCount);
 
 
 	// 
@@ -275,7 +320,10 @@ void display() {
 
 void updateScene() {
 	car.update();
-	wheel.update(&car);
+	fl_wheel.update(&car, true);
+	fr_wheel.update(&car, false);
+	bl_wheel.update(&car, true);
+	br_wheel.update(&car, false);
 	camera.update();
 
 	glutPostRedisplay();
@@ -293,8 +341,14 @@ void init()
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
 
-	glGenVertexArrays(1, &wheel.vao);
-	generateObjectBufferMesh(wheel);
+	glGenVertexArrays(1, &fl_wheel.vao);
+	generateObjectBufferMesh(fl_wheel);
+	glGenVertexArrays(1, &fr_wheel.vao);
+	generateObjectBufferMesh(fr_wheel);
+	glGenVertexArrays(1, &bl_wheel.vao);
+	generateObjectBufferMesh(bl_wheel);
+	glGenVertexArrays(1, &br_wheel.vao);
+	generateObjectBufferMesh(br_wheel);
 	
 	glGenVertexArrays(1, &tree.vao);
 	generateObjectBufferMesh(tree);
@@ -304,6 +358,11 @@ void init()
 }
 
 void keyDown(unsigned char key, int x, int y) {
+	if (key == 27)
+	{
+		exit(0);
+	}
+
 	// Move car when cam_lock is on 
 	if (camera.cam_lock) {
 		if (key == 'w') {
@@ -317,9 +376,11 @@ void keyDown(unsigned char key, int x, int y) {
 			car.vel.v[Z] = -0.01f;
 		}
 		if (key == 'a') {
+			car.isTurningLeft = true;
 			car.rot_vel.v[Y] = 0.1f;
 		}
 		if (key == 'd') {
+			car.isTurningRight = true;
 			car.rot_vel.v[Y] = -0.1f;
 		}
 	}
@@ -372,6 +433,9 @@ void keyUp(unsigned char key, int x, int y) {
 		camera.vel.v[Z] = 0.0f;
 	}
 	if (key == 'a' || key == 'd') {
+		car.isTurningLeft = false;
+		car.isTurningRight = false;
+
 		car.rot_vel.v[Y] = 0.0f;
 		camera.rot_vel.v[Y] = 0.0f;
 	}

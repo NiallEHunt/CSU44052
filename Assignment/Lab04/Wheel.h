@@ -5,6 +5,6 @@ class Wheel : public Model
 {
 public:
 	Wheel(const char* mesh_name, vec3 starting_pos);
-	void update(Model* parent);
+	void update(Model* parent, bool isLeft);
 };
 

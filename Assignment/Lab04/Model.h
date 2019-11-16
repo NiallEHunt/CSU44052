@@ -32,7 +32,7 @@ public:
 	GLuint vao;
 	GLuint* texture;
 	vec3 pos, vel, rot, rot_vel, scale;
-	bool isMoving;
+	bool isMoving, isTurningLeft, isTurningRight;
 	Model::ModelData model_data;
 	void update();
 private:
