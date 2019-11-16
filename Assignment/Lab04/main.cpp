@@ -16,6 +16,7 @@
 // Project includes
 #include "maths_funcs.h"
 #include "Model.h"
+#include "Wheel.h"
 #include "Camera.h"
 
 #define X 0
@@ -25,7 +26,8 @@
 #define NUMBER_OF_TREES 7
 
 // Model names to be loaded
-#define CAR_MESH_NAME "models/Car.dae"
+#define CAR_MESH_NAME "models/car.dae"
+#define CAR_WHEEL_MESH_NAME "models/wheel.obj"
 #define ROAD_MESH_NAME "models/road.obj"
 #define TREE_MESH_NAME "models/tree.obj"
 
@@ -41,6 +43,7 @@ bool cam_lock = true;
 Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
+Wheel wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
 // Shader Functions- click on + to expand
@@ -225,6 +228,7 @@ void display() {
 	glBindVertexArray(road.vao);
 	glDrawArrays(GL_TRIANGLES, 0, road.model_data.mPointCount);
 	
+
 	// 
 	// Car
 	//
@@ -235,6 +239,18 @@ void display() {
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(car.vao);
 	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
+
+	// Wheels
+	mat4 wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, wheel.rot.v[0]);
+	wheel_model = translate(wheel_model, wheel.pos);
+
+	mat4 global_fl_tyre = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, global_fl_tyre.m);
+	glBindVertexArray(wheel.vao);
+	glDrawArrays(GL_TRIANGLES, 0, wheel.model_data.mPointCount);
+
 
 	// 
 	// Trees
@@ -259,6 +275,7 @@ void display() {
 
 void updateScene() {
 	car.update();
+	wheel.update(&car);
 	camera.update();
 
 	glutPostRedisplay();
@@ -275,6 +292,9 @@ void init()
 
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
+
+	glGenVertexArrays(1, &wheel.vao);
+	generateObjectBufferMesh(wheel);
 	
 	glGenVertexArrays(1, &tree.vao);
 	generateObjectBufferMesh(tree);
