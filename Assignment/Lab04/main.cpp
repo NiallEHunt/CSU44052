@@ -1,4 +1,6 @@
+#pragma region INCLUDES AND DEFINES
 #define _USE_MATH_DEFINES
+#define STB_IMAGE_IMPLEMENTATION
 
 // Windows includes (For Time, IO, etc.)
 #include <windows.h>
@@ -24,12 +26,17 @@
 #define Z 2
 
 #define NUMBER_OF_TREES 7
+#pragma endregion INCLUDES AND DEFINES
 
 // Model names to be loaded
-#define CAR_MESH_NAME "models/car.obj"
+#define CAR_MESH_NAME "models/car.dae"
 #define CAR_WHEEL_MESH_NAME "models/wheel.obj"
 #define ROAD_MESH_NAME "models/road.obj"
 #define TREE_MESH_NAME "models/tree.obj"
+#define SKYBOX_MESH_NAME "models/skybox2.obj"
+
+#define ROAD_TEXTURE_NAME "models/road_texture.jpg"
+#define SKYBOX_TEXTURE_NAME "models/SkyDome-Cloud-Overcast-MidMorning.png"
 
 using namespace std;
 GLuint shaderProgramID;
@@ -40,8 +47,9 @@ int height = 900;
 GLuint loc1, loc2, loc3;
 bool cam_lock = true;
 
-Model road(ROAD_MESH_NAME, vec3(0.0f, -0.2f, 0.0f));
+Model road(ROAD_MESH_NAME, ROAD_TEXTURE_NAME, vec3(0.0f, -0.2f, 0.0f));
 Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
+//Model sky(SKYBOX_MESH_NAME, SKYBOX_TEXTURE_NAME, vec3(0.0f, 0.0f, 0.0f));
 
 Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Wheel fl_wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
@@ -174,10 +182,13 @@ void generateObjectBufferMesh(Model model) {
 	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[X], GL_STATIC_DRAW);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	/*unsigned int vt_vbo = 0;
-	glGenBuffers (1, &vt_vbo);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glBufferData (GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof (vec2), &model.model_data.mTextureCoords[X], GL_STATIC_DRAW);*/
+	unsigned int vt_vbo = 0;
+	if (mesh_data.mTextureCoords.size() > 0)
+	{
+		glGenBuffers(1, &vt_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
+		glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec2), &model.model_data.mTextureCoords[X], GL_STATIC_DRAW);
+	}
 
 	glBindVertexArray(model.vao);
 
@@ -190,12 +201,42 @@ void generateObjectBufferMesh(Model model) {
 	glVertexAttribPointer(loc2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	//	This is for texture coordinates which you don't currently need, so I have commented it out
-	/*glEnableVertexAttribArray (loc3);
-	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
-	glVertexAttribPointer (loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);*/
+	if (mesh_data.mTextureCoords.size() > 0)
+	{
+		glEnableVertexAttribArray(loc3);
+		glBindBuffer(GL_ARRAY_BUFFER, vt_vbo);
+		glVertexAttribPointer(loc3, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	}
 }
 #pragma endregion VBO_FUNCTIONS
 
+#pragma region TEXTURE_FUNCTIONS
+
+void loadTexture(Model model)
+{
+	glGenTextures(1, &model.texture);
+	glBindTexture(GL_TEXTURE_2D, model.texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(model.texture_name, &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
+
+#pragma endregion TEXTURE_FUNCTIONS
 
 void display() {
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
@@ -232,7 +273,19 @@ void display() {
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
 	glBindVertexArray(road.vao);
 	glDrawArrays(GL_TRIANGLES, 0, road.model_data.mPointCount);
-	
+
+
+	//// 
+	//// Sky
+	////
+	//mat4 sky_model = identity_mat4();
+	//sky_model = translate(sky_model, camera.pos);
+
+	//glBindTexture(GL_TEXTURE_2D, sky.texture);
+	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sky_model.m);
+	//glBindVertexArray(sky.vao);
+	//glDrawArrays(GL_TRIANGLES, 0, sky.model_data.mPointCount);
+
 
 	// 
 	// Car
@@ -252,8 +305,8 @@ void display() {
 
 	// Front Left
 	mat4 wheel_model = identity_mat4();
-	wheel_model = rotate_y_deg(wheel_model, fl_wheel.rot.v[Y]);
 	wheel_model = rotate_x_deg(wheel_model, fl_wheel.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, fl_wheel.rot.v[Y]);
 	wheel_model = translate(wheel_model, fl_wheel.pos);
 
 	wheel_model = car_model * wheel_model;
@@ -264,8 +317,8 @@ void display() {
 
 	// Front Right
 	wheel_model = identity_mat4();
-	wheel_model = rotate_y_deg(wheel_model, fr_wheel.rot.v[Y]);
 	wheel_model = rotate_x_deg(wheel_model, fr_wheel.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, fr_wheel.rot.v[Y]);
 	wheel_model = translate(wheel_model, fr_wheel.pos);
 
 	wheel_model = car_model * wheel_model;
@@ -337,6 +390,11 @@ void init()
 
 	glGenVertexArrays(1, &road.vao);
 	generateObjectBufferMesh(road);
+	loadTexture(road);
+
+	/*glGenVertexArrays(1, &sky.vao);
+	generateObjectBufferMesh(sky);
+	loadTexture(sky);*/
 
 	glGenVertexArrays(1, &car.vao);
 	generateObjectBufferMesh(car);
@@ -357,6 +415,7 @@ void init()
 	camera.lock_cam(&car);
 }
 
+#pragma region KEYBOARD FUNCTIONS
 void keyDown(unsigned char key, int x, int y) {
 	if (key == 27)
 	{
@@ -443,6 +502,7 @@ void keyUp(unsigned char key, int x, int y) {
 		camera.vel.v[Y] = 0.0f;
 	}
 }
+#pragma endregion KEYBOARD FUNCTIONS
 
 int main(int argc, char** argv) {
 
@@ -458,6 +518,7 @@ int main(int argc, char** argv) {
 	glutKeyboardFunc(keyDown);
 	glutKeyboardUpFunc(keyUp);
 
+	glewExperimental = GL_TRUE;
 	// A call to glewInit() must be done after glut is initialized!
 	GLenum res = glewInit();
 	// Check for any errors

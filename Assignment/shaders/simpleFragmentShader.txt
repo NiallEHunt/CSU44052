@@ -1,6 +1,11 @@
 #version 330
 
 in vec3 LightIntensity;
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
+
 void main(){
-	gl_FragColor = vec4 (LightIntensity, 1.0);
+	vec4 texel = texture(ourTexture, TexCoord);
+	gl_FragColor = vec4 (LightIntensity, 1.0) * texel;
 }

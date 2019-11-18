@@ -88,9 +88,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="maths_funcs.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Wheel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\shaders\simpleFragmentShader.txt" />
+    <Text Include="..\shaders\simpleVertexShader.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

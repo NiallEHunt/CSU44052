@@ -4,6 +4,7 @@
 
 // Windows includes
 #include <vector>
+#include <iostream>
 
 // OpenGL includes
 #include <GL/glew.h>
@@ -15,6 +16,7 @@
 
 // Project includes
 #include "maths_funcs.h"
+#include "stb_image.h"
 
 typedef struct
 {
@@ -28,14 +30,14 @@ class Model
 {
 public:
 	Model(const char* mesh_name, vec3 starting_pos);
-	Model(const char* mesh_name, const char* texture_name, vec3 starting_pos);
+	Model(const char* mesh_name, const char* filename, vec3 starting_pos);
 	GLuint vao;
-	GLuint* texture;
+	GLuint texture;
 	vec3 pos, vel, rot, rot_vel, scale;
 	bool isMoving, isTurningLeft, isTurningRight;
+	const char* texture_name;
 	Model::ModelData model_data;
 	void update();
 private:
 	ModelData load_mesh(const char* file_name);
-	void load_texture(const char* texture_name);
 };
