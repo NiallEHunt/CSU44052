@@ -25,7 +25,7 @@
 #define Y 1
 #define Z 2
 
-#define NUMBER_OF_TREES 7
+#define NUMBER_OF_TREES 20
 #pragma endregion INCLUDES AND DEFINES
 
 // Model names to be loaded
@@ -35,7 +35,8 @@
 #define CAR_WHEEL_RIM_MESH_NAME "models/wheel_rim.obj"
 #define CAR_WHEEL_TYRE_MESH_NAME "models/wheel_tyre.obj"
 #define ROAD_MESH_NAME "models/road.obj"
-#define TREE_MESH_NAME "models/tree.obj"
+#define TREE_LEAVES_MESH_NAME "models/tree_leaves.obj"
+#define TREE_TRUNK_MESH_NAME "models/tree_trunk.obj"
 #define SKYBOX_MESH_NAME "models/skybox.obj"
 #define GROUND_MESH_NAME "models/ground.obj"
 
@@ -81,9 +82,11 @@ bool cam_lock = true;
 
 Model road(ROAD_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model sky(SKYBOX_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
-Model ground(GROUND_MESH_NAME, vec3(0.0f, -0.1f, 0.0f));
-Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
+Model ground(GROUND_MESH_NAME, vec3(-100.0f, -0.1f, -100.0f));
+Model tree_leaves(TREE_LEAVES_MESH_NAME, vec3(8.0f, 0.0f, -100.0f));
+Model tree_trunk(TREE_TRUNK_MESH_NAME, vec3(8.0f, 0.0f, -100.0f));
 
+// Car and Wheels
 Model car_body(CAR_BODY_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model car_trim_and_windows(CAR_TRIM_AND_WINDOWS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model car_lights(CAR_LIGHTS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
@@ -91,6 +94,10 @@ Wheel fl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
 Wheel fr_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
 Wheel bl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
 Wheel br_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
+Wheel fl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+Wheel fr_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
+Wheel bl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
+Wheel br_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
 
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
@@ -387,7 +394,15 @@ void display() {
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
 	glBindVertexArray(fl_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, fl_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(fl_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, fl_wheel_tyre.model_data.mPointCount);
 
 	// Front Right
 	wheel_model = identity_mat4();
@@ -399,7 +414,15 @@ void display() {
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
 	glBindVertexArray(fr_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, fr_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(fr_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, fr_wheel_tyre.model_data.mPointCount);
 
 	// Back Left
 	wheel_model = identity_mat4();
@@ -410,7 +433,15 @@ void display() {
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
 	glBindVertexArray(bl_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, bl_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(bl_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, bl_wheel_tyre.model_data.mPointCount);
 
 	// Back Right
 	wheel_model = identity_mat4();
@@ -421,7 +452,15 @@ void display() {
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
 	glBindVertexArray(br_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, br_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(br_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, br_wheel_tyre.model_data.mPointCount);
 
 
 	// 
@@ -429,16 +468,24 @@ void display() {
 	//
 	for (size_t i = 0; i < NUMBER_OF_TREES; i++)
 	{
-		float new_x = 5.0f * sinf(tree.rot.v[Y] * M_PI / 180.0f) * i;
-		float new_z = 5.0f * cosf(tree.rot.v[Y] * M_PI / 180.0f) * i;
-		vec3 tree_pos = tree.pos + vec3(new_x, 0.0f, new_z);
+		float new_x = 10.0f * sinf(tree_leaves.rot.v[Y] * M_PI / 180.0f) * i;
+		float new_z = 10.0f * cosf(tree_leaves.rot.v[Y] * M_PI / 180.0f) * i;
+		vec3 tree_pos = tree_leaves.pos + vec3(new_x, 0.0f, new_z);
 		mat4 tree_model = identity_mat4();
-		tree_model = scale(tree_model, tree.scale);
+		tree_model = scale(tree_model, tree_leaves.scale);
 		tree_model = translate(tree_model, tree_pos);
 
 		glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
-		glBindVertexArray(tree.vao);
-		glDrawArrays(GL_TRIANGLES, 0, tree.model_data.mPointCount);
+		glBindVertexArray(tree_leaves.vao);
+		glUniform1i(texture_number, GREEN_TEXTURE);
+		glBindTexture(GL_TEXTURE_2D, textures[GREEN_TEXTURE]);
+		glDrawArrays(GL_TRIANGLES, 0, tree_leaves.model_data.mPointCount);
+
+		glUniformMatrix4fv(matrix_location, 1, GL_FALSE, tree_model.m);
+		glBindVertexArray(tree_trunk.vao);
+		glUniform1i(texture_number, BROWN_TEXTURE);
+		glBindTexture(GL_TEXTURE_2D, textures[BROWN_TEXTURE]);
+		glDrawArrays(GL_TRIANGLES, 0, tree_trunk.model_data.mPointCount);
 	}
 
 	glutSwapBuffers();
@@ -489,9 +536,22 @@ void init()
 	glGenVertexArrays(1, &br_wheel_rim.vao);
 	generateObjectBufferMesh(br_wheel_rim);
 
-	glGenVertexArrays(1, &tree.vao);
-	generateObjectBufferMesh(tree);
-	tree.scale = vec3(0.05f, 0.05f, 0.05f);
+	glGenVertexArrays(1, &fl_wheel_tyre.vao);
+	generateObjectBufferMesh(fl_wheel_tyre);
+	glGenVertexArrays(1, &fr_wheel_tyre.vao);
+	generateObjectBufferMesh(fr_wheel_tyre);
+	glGenVertexArrays(1, &bl_wheel_tyre.vao);
+	generateObjectBufferMesh(bl_wheel_tyre);
+	glGenVertexArrays(1, &br_wheel_tyre.vao);
+	generateObjectBufferMesh(br_wheel_tyre);
+
+	glGenVertexArrays(1, &tree_leaves.vao);
+	generateObjectBufferMesh(tree_leaves);
+	tree_leaves.scale = vec3(0.05f, 0.05f, 0.05f);
+
+	glGenVertexArrays(1, &tree_trunk.vao);
+	generateObjectBufferMesh(tree_trunk);
+	tree_leaves.scale = vec3(0.05f, 0.05f, 0.05f);
 
 	camera.lock_cam(&car_body);
 
@@ -508,6 +568,12 @@ void init()
 	loadTexture(GL_TEXTURE4, textures[BLACK_TEXTURE], BLACK_TEXTURE_FILENAME, BLACK_TEXTURE_NAME, BLACK_TEXTURE);
 
 	loadTexture(GL_TEXTURE5, textures[WHITE_TEXTURE], WHITE_TEXTURE_FILENAME, WHITE_TEXTURE_NAME, WHITE_TEXTURE);
+
+	loadTexture(GL_TEXTURE6, textures[GREY_TEXTURE], GREY_TEXTURE_FILENAME, GREY_TEXTURE_NAME, GREY_TEXTURE);
+
+	loadTexture(GL_TEXTURE7, textures[BROWN_TEXTURE], BROWN_TEXTURE_FILENAME, BROWN_TEXTURE_NAME, BROWN_TEXTURE);
+
+	loadTexture(GL_TEXTURE8, textures[GREEN_TEXTURE], GREEN_TEXTURE_FILENAME, GREEN_TEXTURE_NAME, GREEN_TEXTURE);
 }
 
 #pragma region KEYBOARD FUNCTIONS
