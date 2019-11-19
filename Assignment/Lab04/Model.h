@@ -30,11 +30,13 @@ class Model
 {
 public:
 	Model(const char* mesh_name, vec3 starting_pos);
-	Model(const char* mesh_name, const char* filename, vec3 starting_pos);
+	Model(const char* mesh_name, const char* textureName, const char* filename, vec3 starting_pos);
 	GLuint vao;
-	GLuint texture;
+	GLuint* texture;
+	int active_texture, texture_number;
 	vec3 pos, vel, rot, rot_vel, scale;
 	bool isMoving, isTurningLeft, isTurningRight;
+	const char* texture_filename;
 	const char* texture_name;
 	Model::ModelData model_data;
 	void update();

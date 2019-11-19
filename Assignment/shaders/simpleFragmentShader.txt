@@ -1,11 +1,65 @@
 #version 330
 
-in vec3 LightIntensity;
+in vec3 pos_eye, normal_eye;
 in vec2 TexCoord;
+uniform mat4 view;
+uniform float light_z;
 
-uniform sampler2D ourTexture;
+// fixed point light properties
+vec3 light_pos_world = vec3 (0.0, 40.0, light_z);
+vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
+vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
+vec3 La = vec3 (0.3, 0.3, 0.3); // grey ambient colour
+
+// surface reflectance
+vec3 Ks = vec3 (1.0, 1.0, 1.0); // fully reflect specular light
+vec3 Kd = vec3 (1.0, 1.0, 1.0); // white diffuse surface reflectance
+vec3 Ka = vec3 (1.0, 1.0, 1.0); // fully reflect ambient light
+float specular_exponent = 10.0; // specular 'power'
+
+out vec4 fragment_colour; // final colour of surface
+
+uniform sampler2D road_texture;
+uniform sampler2D sky_texture;
+uniform sampler2D ground_texture;
+
+uniform int texture_number;
 
 void main(){
-	vec4 texel = texture(ourTexture, TexCoord);
-	gl_FragColor = vec4 (LightIntensity, 1.0) * texel;
+	// ambient intensity
+	vec3 Ia = La * Ka;
+
+	// diffuse intensity 
+	// raise light position to eye space
+	vec3 light_pos_eye = vec3 (view * vec4(light_pos_world, 1.0));
+	vec3 distance_to_light_eye = light_pos_eye - pos_eye;
+	vec3 direction_to_light_eye = normalize (distance_to_light_eye);
+	float dot_prod = dot (direction_to_light_eye, normal_eye);
+	dot_prod = max (dot_prod, 0.0);
+	vec3 Id = Ld * Kd * dot_prod; // final diffuse intensity
+
+	// specular intensity
+	vec3 reflection_eye = reflect (-direction_to_light_eye, normal_eye);
+	vec3 surface_to_viewer_eye = normalize (-pos_eye);
+	float dot_prod_specular = dot (reflection_eye, surface_to_viewer_eye);
+	dot_prod_specular = max (dot_prod_specular, 0.0);
+	float specular_factor = pow (dot_prod_specular, specular_exponent);
+	vec3 Is = Ls * Ks * specular_factor; // final specular intensity
+
+	vec4 texel = texture(road_texture, TexCoord);
+	
+	if(texture_number == 0)
+	{
+		texel = texture(road_texture, TexCoord);
+	}
+	else if(texture_number == 1)
+	{
+		texel = texture(sky_texture, TexCoord);
+	}
+	else if(texture_number == 2)
+	{
+		texel = texture(ground_texture, TexCoord);
+	}
+
+	gl_FragColor = vec4 (Is + Id + Ia, 1.0) * texel;
 }

@@ -7,9 +7,10 @@ Model::Model(const char* mesh_name, vec3 starting_pos)
 	isMoving = false;
 }
 
-Model::Model(const char* mesh_name, const char* filename, vec3 starting_pos) : Model(mesh_name, starting_pos)
+Model::Model(const char* mesh_name, const char* textureName, const char* filename, vec3 starting_pos) : Model(mesh_name, starting_pos)
 {
-	texture_name = filename;
+	texture_filename = filename;
+	texture_name = textureName;
 }
 
 void Model::update()
@@ -40,7 +41,7 @@ ModelData Model::load_mesh(const char* file_name) {
 	/* they're in the right position.                                 */
 	const aiScene* scene = aiImportFile(
 		file_name,
-		aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_PreTransformVertices
+		aiProcess_Triangulate | aiProcess_PreTransformVertices
 	);
 
 	if (!scene) {
@@ -63,7 +64,7 @@ ModelData Model::load_mesh(const char* file_name) {
 			}
 			if (mesh->HasNormals()) {
 				const aiVector3D* vn = &(mesh->mNormals[v_i]);
-				modelData.mNormals.push_back(vec3(vn->x, 1 - vn->y, vn->z));
+				modelData.mNormals.push_back(vec3(vn->x, vn->y, vn->z));
 			}
 			if (mesh->HasTextureCoords(0)) {
 				const aiVector3D* vt = &(mesh->mTextureCoords[0][v_i]);
