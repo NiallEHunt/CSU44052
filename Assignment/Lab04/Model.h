@@ -35,6 +35,7 @@ public:
 	GLfloat min_x, max_x;
 	GLfloat min_y, max_y;
 	GLfloat min_z, max_z;
+	vec4 min_vec, max_vec;
 	vec3 pos, vel, rot, rot_vel, scale;
 	bool isMoving, isTurningLeft, isTurningRight, isAI;
 	Model::ModelData model_data;

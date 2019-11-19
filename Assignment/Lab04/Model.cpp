@@ -108,6 +108,9 @@ ModelData Model::load_mesh(const char* file_name) {
 		}
 	}
 
+	min_vec = vec4(min_x, min_y, min_z, 1);
+	max_vec = vec4(max_x, max_y, max_z, 1);
+
 	aiReleaseImport(scene);
 	return modelData;
 }

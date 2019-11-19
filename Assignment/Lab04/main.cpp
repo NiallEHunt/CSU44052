@@ -375,6 +375,9 @@ void display() {
 	car_model = rotate_y_deg(car_model, car_body.rot.v[Y]);
 	car_model = translate(car_model, car_body.pos);
 
+	car_body.min_vec = car_model * car_body.min_vec;
+	car_body.max_vec = car_model * car_body.max_vec;
+
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(car_body.vao);
 	glUniform1i(texture_number, RED_TEXTURE);
@@ -483,6 +486,9 @@ void display() {
 	car_model = identity_mat4();
 	car_model = rotate_y_deg(car_model, 180.0f);
 	car_model = translate(car_model, ai_car_body.pos);
+
+	ai_car_body.min_vec = car_model * ai_car_body.min_vec;
+	ai_car_body.max_vec = car_model * ai_car_body.max_vec;
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
 	glBindVertexArray(ai_car_body.vao);
@@ -615,9 +621,19 @@ void display() {
 }
 
 
-void updateScene() {
+bool collision(Model model1, Model model2)
+{
+	return (model1.max_vec.v[0] >= model2.min_vec.v[0] && model2.max_vec.v[0] >= model1.min_vec.v[0]) && 
+               (model1.max_vec.v[1] >= model2.min_vec.v[1] && model2.max_vec.v[1] >= model1.min_vec.v[1]) && 
+               (model1.max_vec.v[2] >= model2.min_vec.v[2] && model2.max_vec.v[2] >= model1.min_vec.v[2]);
+}
 
-	ai_car_body.update();
+
+void updateScene() {
+	if (!collision(ai_car_body, car_body))
+	{
+		ai_car_body.update();
+	}
 	car_body.update();
 	fl_wheel_rim.update(&car_body, true);
 	fr_wheel_rim.update(&car_body, false);
