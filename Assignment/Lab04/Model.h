@@ -30,9 +30,10 @@ class Model
 {
 public:
 	Model(const char* mesh_name, vec3 starting_pos);
+	Model(const char* mesh_name, vec3 starting_pos, bool isComputer);
 	GLuint vao;
 	vec3 pos, vel, rot, rot_vel, scale;
-	bool isMoving, isTurningLeft, isTurningRight;
+	bool isMoving, isTurningLeft, isTurningRight, isAI;
 	Model::ModelData model_data;
 	void update();
 private:

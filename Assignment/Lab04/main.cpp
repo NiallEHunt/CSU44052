@@ -87,7 +87,7 @@ Model tree_leaves(TREE_LEAVES_MESH_NAME, vec3(8.0f, 0.0f, -100.0f));
 Model tree_trunk(TREE_TRUNK_MESH_NAME, vec3(8.0f, 0.0f, -100.0f));
 
 // Car and Wheels
-Model car_body(CAR_BODY_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model car_body(CAR_BODY_MESH_NAME, vec3(2.5f, 0.0f, 0.0f));
 Model car_trim_and_windows(CAR_TRIM_AND_WINDOWS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Model car_lights(CAR_LIGHTS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
 Wheel fl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
@@ -98,6 +98,19 @@ Wheel fl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
 Wheel fr_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
 Wheel bl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
 Wheel br_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
+
+// AI Car and Wheels
+Model ai_car_body(CAR_BODY_MESH_NAME, vec3(-2.5f, 0.0f, 60.0f), true);
+Model ai_car_trim_and_windows(CAR_TRIM_AND_WINDOWS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model ai_car_lights(CAR_LIGHTS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Wheel ai_fl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+Wheel ai_fr_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
+Wheel ai_bl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
+Wheel ai_br_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
+Wheel ai_fl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+Wheel ai_fr_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
+Wheel ai_bl_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
+Wheel ai_br_wheel_tyre(CAR_WHEEL_TYRE_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
 
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
@@ -353,7 +366,6 @@ void display() {
 	glBindTexture(GL_TEXTURE_2D, textures[SKYBOX_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, sky.model_data.mPointCount);
 
-
 	// 
 	// Car
 	//
@@ -464,6 +476,115 @@ void display() {
 
 
 	// 
+	// AI Car
+	//
+	car_model = identity_mat4();
+	car_model = rotate_y_deg(car_model, 180.0f);
+	car_model = translate(car_model, ai_car_body.pos);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
+	glBindVertexArray(ai_car_body.vao);
+	glUniform1i(texture_number, GREEN_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREEN_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_car_body.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
+	glBindVertexArray(ai_car_trim_and_windows.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_car_trim_and_windows.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
+	glBindVertexArray(ai_car_lights.vao);
+	glUniform1i(texture_number, WHITE_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[WHITE_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_car_lights.model_data.mPointCount);
+
+
+	//
+	// AI Wheels
+	//
+
+	// Front Left
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, ai_fl_wheel_rim.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, ai_fl_wheel_rim.rot.v[Y]);
+	wheel_model = translate(wheel_model, ai_fl_wheel_rim.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_fl_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_fl_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_fl_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_fl_wheel_tyre.model_data.mPointCount);
+
+	// Front Right
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, ai_fr_wheel_rim.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, ai_fr_wheel_rim.rot.v[Y]);
+	wheel_model = translate(wheel_model, ai_fr_wheel_rim.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_fr_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_fr_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_fr_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_fr_wheel_tyre.model_data.mPointCount);
+
+	// Back Left
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, ai_bl_wheel_rim.rot.v[X]);
+	wheel_model = translate(wheel_model, ai_bl_wheel_rim.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_bl_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_bl_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_bl_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_bl_wheel_tyre.model_data.mPointCount);
+
+	// Back Right
+	wheel_model = identity_mat4();
+	wheel_model = rotate_x_deg(wheel_model, ai_br_wheel_rim.rot.v[X]);
+	wheel_model = translate(wheel_model, ai_br_wheel_rim.pos);
+
+	wheel_model = car_model * wheel_model;
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_br_wheel_rim.vao);
+	glUniform1i(texture_number, GREY_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GREY_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_br_wheel_rim.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
+	glBindVertexArray(ai_br_wheel_tyre.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, ai_br_wheel_tyre.model_data.mPointCount);
+
+
+	// 
 	// Trees
 	//
 	for (size_t i = 0; i < NUMBER_OF_TREES; i++)
@@ -493,11 +614,16 @@ void display() {
 
 
 void updateScene() {
+	ai_car_body.update();
 	car_body.update();
 	fl_wheel_rim.update(&car_body, true);
 	fr_wheel_rim.update(&car_body, false);
 	bl_wheel_rim.update(&car_body, true);
 	br_wheel_rim.update(&car_body, false);
+	ai_fl_wheel_rim.update(&ai_car_body, true);
+	ai_fr_wheel_rim.update(&ai_car_body, false);
+	ai_bl_wheel_rim.update(&ai_car_body, true);
+	ai_br_wheel_rim.update(&ai_car_body, false);
 	camera.update();
 
 	glutPostRedisplay();
@@ -544,6 +670,33 @@ void init()
 	generateObjectBufferMesh(bl_wheel_tyre);
 	glGenVertexArrays(1, &br_wheel_tyre.vao);
 	generateObjectBufferMesh(br_wheel_tyre);
+
+	// AI Car
+	glGenVertexArrays(1, &ai_car_body.vao);
+	generateObjectBufferMesh(ai_car_body);
+	glGenVertexArrays(1, &ai_car_trim_and_windows.vao);
+	generateObjectBufferMesh(ai_car_trim_and_windows);
+	glGenVertexArrays(1, &ai_car_lights.vao);
+	generateObjectBufferMesh(ai_car_lights);
+
+	// AI Wheels
+	glGenVertexArrays(1, &ai_fl_wheel_rim.vao);
+	generateObjectBufferMesh(ai_fl_wheel_rim);
+	glGenVertexArrays(1, &ai_fr_wheel_rim.vao);
+	generateObjectBufferMesh(ai_fr_wheel_rim);
+	glGenVertexArrays(1, &ai_bl_wheel_rim.vao);
+	generateObjectBufferMesh(ai_bl_wheel_rim);
+	glGenVertexArrays(1, &ai_br_wheel_rim.vao);
+	generateObjectBufferMesh(ai_br_wheel_rim);
+
+	glGenVertexArrays(1, &ai_fl_wheel_tyre.vao);
+	generateObjectBufferMesh(ai_fl_wheel_tyre);
+	glGenVertexArrays(1, &ai_fr_wheel_tyre.vao);
+	generateObjectBufferMesh(ai_fr_wheel_tyre);
+	glGenVertexArrays(1, &ai_bl_wheel_tyre.vao);
+	generateObjectBufferMesh(ai_bl_wheel_tyre);
+	glGenVertexArrays(1, &ai_br_wheel_tyre.vao);
+	generateObjectBufferMesh(ai_br_wheel_tyre);
 
 	glGenVertexArrays(1, &tree_leaves.vao);
 	generateObjectBufferMesh(tree_leaves);

@@ -7,17 +7,35 @@ Model::Model(const char* mesh_name, vec3 starting_pos)
 	isMoving = false;
 }
 
+Model::Model(const char* mesh_name, vec3 starting_pos, bool isComputer) : Model(mesh_name, starting_pos)
+{
+	isAI = isComputer;
+	isMoving = true;
+	vel = vec3(0.0f, 0.0f, 0.05f);
+}
+
 void Model::update()
 {
-	vec3 new_vel = vel;
-
-	if (isMoving) {
-		new_vel.v[0] = vel.v[0] * sinf(rot.v[1] * M_PI / 180.0f);
-		new_vel.v[2] = vel.v[2] * cosf(rot.v[1] * M_PI / 180.0f);
+	if (isAI)
+	{
+		pos -= vel;
+		if (pos.v[2] <= -100.0f)
+		{
+			pos.v[2] = 100.0f;
+		}
 	}
+	else
+	{
+		vec3 new_vel = vel;
 
-	pos += new_vel;
-	rot += rot_vel;
+		if (isMoving) {
+			new_vel.v[0] = vel.v[0] * sinf(rot.v[1] * M_PI / 180.0f);
+			new_vel.v[2] = vel.v[2] * cosf(rot.v[1] * M_PI / 180.0f);
+		}
+
+		pos += new_vel;
+		rot += rot_vel;
+	}
 }
 
 #pragma region MESH LOADING
