@@ -621,16 +621,16 @@ void display() {
 }
 
 
-bool collision(Model model1, Model model2)
+bool collision(Model* model1, Model* model2)
 {
-	return (model1.max_vec.v[0] >= model2.min_vec.v[0] && model2.max_vec.v[0] >= model1.min_vec.v[0]) && 
-               (model1.max_vec.v[1] >= model2.min_vec.v[1] && model2.max_vec.v[1] >= model1.min_vec.v[1]) && 
-               (model1.max_vec.v[2] >= model2.min_vec.v[2] && model2.max_vec.v[2] >= model1.min_vec.v[2]);
+	return (&model1->max_vec.v[0] >= &model2->min_vec.v[0] && &model2->max_vec.v[0] >= &model1->min_vec.v[0]) &&
+               (&model1->max_vec.v[1] >= &model2->min_vec.v[1] && &model2->max_vec.v[1] >= &model1->min_vec.v[1]) &&
+               (&model1->max_vec.v[2] >= &model2->min_vec.v[2] && &model2->max_vec.v[2] >= &model1->min_vec.v[2]);
 }
 
 
 void updateScene() {
-	if (!collision(ai_car_body, car_body))
+	if (!collision(&ai_car_body, &car_body))
 	{
 		ai_car_body.update();
 	}
