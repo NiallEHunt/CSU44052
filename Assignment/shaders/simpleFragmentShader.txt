@@ -22,6 +22,12 @@ out vec4 fragment_colour; // final colour of surface
 uniform sampler2D road_texture;
 uniform sampler2D sky_texture;
 uniform sampler2D ground_texture;
+uniform sampler2D red_texture;
+uniform sampler2D black_texture;
+uniform sampler2D white_texture;
+uniform sampler2D grey_texture;
+uniform sampler2D brown_texture;
+uniform sampler2D green_texture;
 
 uniform int texture_number;
 
@@ -59,6 +65,30 @@ void main(){
 	else if(texture_number == 2)
 	{
 		texel = texture(ground_texture, TexCoord);
+	}
+	else if(texture_number == 3)
+	{
+		texel = texture(red_texture, TexCoord);
+	}
+	else if(texture_number == 4)
+	{
+		texel = texture(black_texture, TexCoord);
+	}
+	else if(texture_number == 5)
+	{
+		texel = texture(white_texture, TexCoord);
+	}
+	else if(texture_number == 6)
+	{
+		texel = texture(grey_texture, TexCoord);
+	}
+	else if(texture_number == 7)
+	{
+		texel = texture(brown_texture, TexCoord);
+	}
+	else if(texture_number == 8)
+	{
+		texel = texture(green_texture, TexCoord);
 	}
 
 	gl_FragColor = vec4 (Is + Id + Ia, 1.0) * texel;

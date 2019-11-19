@@ -7,12 +7,6 @@ Model::Model(const char* mesh_name, vec3 starting_pos)
 	isMoving = false;
 }
 
-Model::Model(const char* mesh_name, const char* textureName, const char* filename, vec3 starting_pos) : Model(mesh_name, starting_pos)
-{
-	texture_filename = filename;
-	texture_name = textureName;
-}
-
 void Model::update()
 {
 	vec3 new_vel = vel;

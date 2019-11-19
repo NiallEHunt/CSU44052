@@ -29,19 +29,46 @@
 #pragma endregion INCLUDES AND DEFINES
 
 // Model names to be loaded
-#define CAR_MESH_NAME "models/car.dae"
-#define CAR_WHEEL_MESH_NAME "models/wheel.obj"
+#define CAR_BODY_MESH_NAME "models/car_body.obj"
+#define CAR_TRIM_AND_WINDOWS_MESH_NAME "models/car_trim_and_windows.obj"
+#define CAR_LIGHTS_MESH_NAME "models/car_lights.obj"
+#define CAR_WHEEL_RIM_MESH_NAME "models/wheel_rim.obj"
+#define CAR_WHEEL_TYRE_MESH_NAME "models/wheel_tyre.obj"
 #define ROAD_MESH_NAME "models/road.obj"
 #define TREE_MESH_NAME "models/tree.obj"
 #define SKYBOX_MESH_NAME "models/skybox.obj"
 #define GROUND_MESH_NAME "models/ground.obj"
 
+#pragma region TEXTURE NAMES
 #define ROAD_TEXTURE_FILENAME "textures/road_texture.jpg"
 #define ROAD_TEXTURE_NAME "road_texture"
 #define SKYBOX_TEXTURE_FILENAME "textures/sky.png"
 #define SKYBOX_TEXTURE_NAME "sky_texture"
 #define GROUND_TEXTURE_FILENAME "textures/grass.JPG"
 #define GROUND_TEXTURE_NAME "ground_texture"
+#define RED_TEXTURE_FILENAME "textures/red.png"
+#define RED_TEXTURE_NAME "red_texture"
+#define BLACK_TEXTURE_FILENAME "textures/black.png"
+#define BLACK_TEXTURE_NAME "black_texture"
+#define WHITE_TEXTURE_FILENAME "textures/white.png"
+#define WHITE_TEXTURE_NAME "white_texture"
+#define GREY_TEXTURE_FILENAME "textures/grey.png"
+#define GREY_TEXTURE_NAME "grey_texture"
+#define BROWN_TEXTURE_FILENAME "textures/brown.png"
+#define BROWN_TEXTURE_NAME "brown_texture"
+#define GREEN_TEXTURE_FILENAME "textures/green.png"
+#define GREEN_TEXTURE_NAME "green_texture"
+
+#define ROAD_TEXTURE 0
+#define SKYBOX_TEXTURE 1
+#define GROUND_TEXTURE 2
+#define RED_TEXTURE 3
+#define BLACK_TEXTURE 4
+#define WHITE_TEXTURE 5
+#define GREY_TEXTURE 6
+#define BROWN_TEXTURE 7
+#define GREEN_TEXTURE 8
+#pragma endregion TEXTURE NAMES
 
 using namespace std;
 GLuint shaderProgramID;
@@ -52,20 +79,22 @@ int height = 900;
 GLuint loc1, loc2, loc3;
 bool cam_lock = true;
 
-Model road(ROAD_MESH_NAME, ROAD_TEXTURE_NAME, ROAD_TEXTURE_FILENAME, vec3(0.0f, 0.0f, 0.0f));
-Model sky(SKYBOX_MESH_NAME, SKYBOX_TEXTURE_NAME, SKYBOX_TEXTURE_FILENAME, vec3(0.0f, 0.0f, 0.0f));
-Model ground(GROUND_MESH_NAME, GROUND_TEXTURE_NAME, GROUND_TEXTURE_FILENAME, vec3(0.0f, -0.1f, 0.0f));
+Model road(ROAD_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model sky(SKYBOX_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model ground(GROUND_MESH_NAME, vec3(0.0f, -0.1f, 0.0f));
 Model tree(TREE_MESH_NAME, vec3(3.0f, 0.0f, -15.0f));
 
-Model car(CAR_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
-Wheel fl_wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
-Wheel fr_wheel(CAR_WHEEL_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
-Wheel bl_wheel(CAR_WHEEL_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
-Wheel br_wheel(CAR_WHEEL_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
+Model car_body(CAR_BODY_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model car_trim_and_windows(CAR_TRIM_AND_WINDOWS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Model car_lights(CAR_LIGHTS_MESH_NAME, vec3(0.0f, 0.0f, 0.0f));
+Wheel fl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, 1.3f));
+Wheel fr_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, 1.3f));
+Wheel bl_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(0.86f, 0.4f, -1.3f));
+Wheel br_wheel_rim(CAR_WHEEL_RIM_MESH_NAME, vec3(-0.86f, 0.4f, -1.3f));
 
 Camera camera(vec3(0.0f, -2.5f, -10.0f));
 
-GLuint textures[3];
+GLuint textures[9];
 
 // Shader Functions- click on + to expand
 #pragma region SHADER_FUNCTIONS
@@ -220,41 +249,10 @@ void generateObjectBufferMesh(Model model) {
 
 #pragma region TEXTURE_FUNCTIONS
 
-void loadTexture(GLuint texture, const char* filepath, int active_arg, const GLchar* texString, int texNum) {
-	int x, y, n;
-	int force_channels = 4;
-	unsigned char* image_data = stbi_load(filepath, &x, &y, &n, force_channels);
-	if (!image_data) {
-		fprintf(stderr, "ERROR: could not load %s\n", filepath);
-
-	}
-	// NPOT check
-	if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0) {
-		fprintf(stderr, "WARNING: texture %s is not power-of-2 dimensions\n",
-			filepath);
-	}
-
-	glActiveTexture(active_arg);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-		image_data);
-	glUniform1i(glGetUniformLocation(shaderProgramID, texString), texNum);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
-	GLfloat max_aniso = 0.0f;
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
-	// set the maximum!
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_aniso);
-
-}
-
-void loadTexture(Model model)
+void loadTexture(int active_texture, GLuint texture, const char* texture_filename, const char* texture_name, int texture_number)
 {
-	glActiveTexture(model.active_texture);
-	glBindTexture(GL_TEXTURE_2D, *model.texture);
+	glActiveTexture(active_texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -262,7 +260,7 @@ void loadTexture(Model model)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(model.texture_filename, &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(texture_filename, &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -273,14 +271,9 @@ void loadTexture(Model model)
 		std::cout << "Failed to load texture" << std::endl;
 	}
 
-	glUniform1i(glGetUniformLocation(shaderProgramID, model.texture_name), model.texture_number);
+	glUniform1i(glGetUniformLocation(shaderProgramID, texture_name), texture_number);
 
 	stbi_image_free(data);
-}
-
-void changeTexture(Model model)
-{
-
 }
 
 #pragma endregion TEXTURE_FUNCTIONS
@@ -322,9 +315,9 @@ void display() {
 	road_model = rotate_y_deg(road_model, 90.0f);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, road_model.m);
-	glUniform1i(texture_number, road.texture_number);
 	glBindVertexArray(road.vao);
-	glBindTexture(GL_TEXTURE_2D, *road.texture);
+	glUniform1i(texture_number, ROAD_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[ROAD_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, road.model_data.mPointCount);
 
 
@@ -335,9 +328,9 @@ void display() {
 	ground_model = translate(ground_model, ground.pos);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, ground_model.m);
-	glUniform1i(texture_number, ground.texture_number);
 	glBindVertexArray(ground.vao);
-	glBindTexture(GL_TEXTURE_2D, *ground.texture);
+	glUniform1i(texture_number, GROUND_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[GROUND_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 2, ground.model_data.mPointCount);
 
 
@@ -349,8 +342,8 @@ void display() {
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, sky_model.m);
 	glBindVertexArray(sky.vao);
-	glUniform1i(texture_number, sky.texture_number);
-	glBindTexture(GL_TEXTURE_2D, *sky.texture);
+	glUniform1i(texture_number, SKYBOX_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[SKYBOX_TEXTURE]);
 	glDrawArrays(GL_TRIANGLES, 0, sky.model_data.mPointCount);
 
 
@@ -358,12 +351,26 @@ void display() {
 	// Car
 	//
 	mat4 car_model = identity_mat4();
-	car_model = rotate_y_deg(car_model, car.rot.v[Y]);
-	car_model = translate(car_model, car.pos);
+	car_model = rotate_y_deg(car_model, car_body.rot.v[Y]);
+	car_model = translate(car_model, car_body.pos);
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
-	glBindVertexArray(car.vao);
-	glDrawArrays(GL_TRIANGLES, 0, car.model_data.mPointCount);
+	glBindVertexArray(car_body.vao);
+	glUniform1i(texture_number, RED_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[RED_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, car_body.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
+	glBindVertexArray(car_trim_and_windows.vao);
+	glUniform1i(texture_number, BLACK_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[BLACK_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, car_trim_and_windows.model_data.mPointCount);
+
+	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, car_model.m);
+	glBindVertexArray(car_lights.vao);
+	glUniform1i(texture_number, WHITE_TEXTURE);
+	glBindTexture(GL_TEXTURE_2D, textures[WHITE_TEXTURE]);
+	glDrawArrays(GL_TRIANGLES, 0, car_lights.model_data.mPointCount);
 
 
 	//
@@ -372,49 +379,49 @@ void display() {
 
 	// Front Left
 	mat4 wheel_model = identity_mat4();
-	wheel_model = rotate_x_deg(wheel_model, fl_wheel.rot.v[X]);
-	wheel_model = rotate_y_deg(wheel_model, fl_wheel.rot.v[Y]);
-	wheel_model = translate(wheel_model, fl_wheel.pos);
+	wheel_model = rotate_x_deg(wheel_model, fl_wheel_rim.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, fl_wheel_rim.rot.v[Y]);
+	wheel_model = translate(wheel_model, fl_wheel_rim.pos);
 
 	wheel_model = car_model * wheel_model;
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
-	glBindVertexArray(fl_wheel.vao);
-	glDrawArrays(GL_TRIANGLES, 0, fl_wheel.model_data.mPointCount);
+	glBindVertexArray(fl_wheel_rim.vao);
+	glDrawArrays(GL_TRIANGLES, 0, fl_wheel_rim.model_data.mPointCount);
 
 	// Front Right
 	wheel_model = identity_mat4();
-	wheel_model = rotate_x_deg(wheel_model, fr_wheel.rot.v[X]);
-	wheel_model = rotate_y_deg(wheel_model, fr_wheel.rot.v[Y]);
-	wheel_model = translate(wheel_model, fr_wheel.pos);
+	wheel_model = rotate_x_deg(wheel_model, fr_wheel_rim.rot.v[X]);
+	wheel_model = rotate_y_deg(wheel_model, fr_wheel_rim.rot.v[Y]);
+	wheel_model = translate(wheel_model, fr_wheel_rim.pos);
 
 	wheel_model = car_model * wheel_model;
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
-	glBindVertexArray(fr_wheel.vao);
-	glDrawArrays(GL_TRIANGLES, 0, fr_wheel.model_data.mPointCount);
+	glBindVertexArray(fr_wheel_rim.vao);
+	glDrawArrays(GL_TRIANGLES, 0, fr_wheel_rim.model_data.mPointCount);
 
 	// Back Left
 	wheel_model = identity_mat4();
-	wheel_model = rotate_x_deg(wheel_model, bl_wheel.rot.v[X]);
-	wheel_model = translate(wheel_model, bl_wheel.pos);
+	wheel_model = rotate_x_deg(wheel_model, bl_wheel_rim.rot.v[X]);
+	wheel_model = translate(wheel_model, bl_wheel_rim.pos);
 
 	wheel_model = car_model * wheel_model;
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
-	glBindVertexArray(bl_wheel.vao);
-	glDrawArrays(GL_TRIANGLES, 0, bl_wheel.model_data.mPointCount);
+	glBindVertexArray(bl_wheel_rim.vao);
+	glDrawArrays(GL_TRIANGLES, 0, bl_wheel_rim.model_data.mPointCount);
 
 	// Back Right
 	wheel_model = identity_mat4();
-	wheel_model = rotate_x_deg(wheel_model, br_wheel.rot.v[X]);
-	wheel_model = translate(wheel_model, br_wheel.pos);
+	wheel_model = rotate_x_deg(wheel_model, br_wheel_rim.rot.v[X]);
+	wheel_model = translate(wheel_model, br_wheel_rim.pos);
 
 	wheel_model = car_model * wheel_model;
 
 	glUniformMatrix4fv(matrix_location, 1, GL_FALSE, wheel_model.m);
-	glBindVertexArray(br_wheel.vao);
-	glDrawArrays(GL_TRIANGLES, 0, br_wheel.model_data.mPointCount);
+	glBindVertexArray(br_wheel_rim.vao);
+	glDrawArrays(GL_TRIANGLES, 0, br_wheel_rim.model_data.mPointCount);
 
 
 	// 
@@ -439,11 +446,11 @@ void display() {
 
 
 void updateScene() {
-	car.update();
-	fl_wheel.update(&car, true);
-	fr_wheel.update(&car, false);
-	bl_wheel.update(&car, true);
-	br_wheel.update(&car, false);
+	car_body.update();
+	fl_wheel_rim.update(&car_body, true);
+	fr_wheel_rim.update(&car_body, false);
+	bl_wheel_rim.update(&car_body, true);
+	br_wheel_rim.update(&car_body, false);
 	camera.update();
 
 	glutPostRedisplay();
@@ -464,40 +471,43 @@ void init()
 	glGenVertexArrays(1, &sky.vao);
 	generateObjectBufferMesh(sky);
 
-	glGenVertexArrays(1, &car.vao);
-	generateObjectBufferMesh(car);
+	// Car
+	glGenVertexArrays(1, &car_body.vao);
+	generateObjectBufferMesh(car_body);	
+	glGenVertexArrays(1, &car_trim_and_windows.vao);
+	generateObjectBufferMesh(car_trim_and_windows);
+	glGenVertexArrays(1, &car_lights.vao);
+	generateObjectBufferMesh(car_lights);
 
-	glGenVertexArrays(1, &fl_wheel.vao);
-	generateObjectBufferMesh(fl_wheel);
-	glGenVertexArrays(1, &fr_wheel.vao);
-	generateObjectBufferMesh(fr_wheel);
-	glGenVertexArrays(1, &bl_wheel.vao);
-	generateObjectBufferMesh(bl_wheel);
-	glGenVertexArrays(1, &br_wheel.vao);
-	generateObjectBufferMesh(br_wheel);
+	// Wheels
+	glGenVertexArrays(1, &fl_wheel_rim.vao);
+	generateObjectBufferMesh(fl_wheel_rim);
+	glGenVertexArrays(1, &fr_wheel_rim.vao);
+	generateObjectBufferMesh(fr_wheel_rim);
+	glGenVertexArrays(1, &bl_wheel_rim.vao);
+	generateObjectBufferMesh(bl_wheel_rim);
+	glGenVertexArrays(1, &br_wheel_rim.vao);
+	generateObjectBufferMesh(br_wheel_rim);
 
 	glGenVertexArrays(1, &tree.vao);
 	generateObjectBufferMesh(tree);
 	tree.scale = vec3(0.05f, 0.05f, 0.05f);
 
-	camera.lock_cam(&car);
+	camera.lock_cam(&car_body);
 
-	glGenTextures(3, textures);
+	glGenTextures(9, textures);
 
-	road.active_texture = GL_TEXTURE0;
-	road.texture = &textures[0];
-	road.texture_number = 0;
-	loadTexture(road);
+	loadTexture(GL_TEXTURE0, textures[ROAD_TEXTURE], ROAD_TEXTURE_FILENAME, ROAD_TEXTURE_NAME, ROAD_TEXTURE);
 
-	sky.active_texture = GL_TEXTURE1;
-	sky.texture = &textures[1];
-	sky.texture_number = 1;
-	loadTexture(sky);
+	loadTexture(GL_TEXTURE1, textures[SKYBOX_TEXTURE], SKYBOX_TEXTURE_FILENAME, SKYBOX_TEXTURE_NAME, SKYBOX_TEXTURE);
 
-	ground.active_texture = GL_TEXTURE2;
-	ground.texture = &textures[2];
-	ground.texture_number = 2;
-	loadTexture(ground);
+	loadTexture(GL_TEXTURE2, textures[GROUND_TEXTURE], GROUND_TEXTURE_FILENAME, GROUND_TEXTURE_NAME, GROUND_TEXTURE);
+
+	loadTexture(GL_TEXTURE3, textures[RED_TEXTURE], RED_TEXTURE_FILENAME, RED_TEXTURE_NAME, RED_TEXTURE);
+
+	loadTexture(GL_TEXTURE4, textures[BLACK_TEXTURE], BLACK_TEXTURE_FILENAME, BLACK_TEXTURE_NAME, BLACK_TEXTURE);
+
+	loadTexture(GL_TEXTURE5, textures[WHITE_TEXTURE], WHITE_TEXTURE_FILENAME, WHITE_TEXTURE_NAME, WHITE_TEXTURE);
 }
 
 #pragma region KEYBOARD FUNCTIONS
@@ -510,22 +520,22 @@ void keyDown(unsigned char key, int x, int y) {
 	// Move car when cam_lock is on 
 	if (camera.cam_lock) {
 		if (key == 'w') {
-			car.isMoving = true;
-			car.vel.v[X] = 0.05f;
-			car.vel.v[Z] = 0.05f;
+			car_body.isMoving = true;
+			car_body.vel.v[X] = 0.05f;
+			car_body.vel.v[Z] = 0.05f;
 		}
 		if (key == 's') {
-			car.isMoving = true;
-			car.vel.v[X] = -0.05f;
-			car.vel.v[Z] = -0.05f;
+			car_body.isMoving = true;
+			car_body.vel.v[X] = -0.05f;
+			car_body.vel.v[Z] = -0.05f;
 		}
 		if (key == 'a') {
-			car.isTurningLeft = true;
-			car.rot_vel.v[Y] = 0.25f;
+			car_body.isTurningLeft = true;
+			car_body.rot_vel.v[Y] = 0.25f;
 		}
 		if (key == 'd') {
-			car.isTurningRight = true;
-			car.rot_vel.v[Y] = -0.25f;
+			car_body.isTurningRight = true;
+			car_body.rot_vel.v[Y] = -0.25f;
 		}
 	}
 
@@ -535,7 +545,7 @@ void keyDown(unsigned char key, int x, int y) {
 			camera.unlock_cam();
 		}
 		else {
-			camera.lock_cam(&car);
+			camera.lock_cam(&car_body);
 		}
 	}
 
@@ -568,19 +578,19 @@ void keyDown(unsigned char key, int x, int y) {
 
 void keyUp(unsigned char key, int x, int y) {
 	if (key == 'w' || key == 's') {
-		car.isMoving = false;
-		car.vel.v[X] = 0.0f;
-		car.vel.v[Z] = 0.0f;
+		car_body.isMoving = false;
+		car_body.vel.v[X] = 0.0f;
+		car_body.vel.v[Z] = 0.0f;
 
 		camera.isMoving = false;
 		camera.vel.v[X] = 0.0f;
 		camera.vel.v[Z] = 0.0f;
 	}
 	if (key == 'a' || key == 'd') {
-		car.isTurningLeft = false;
-		car.isTurningRight = false;
+		car_body.isTurningLeft = false;
+		car_body.isTurningRight = false;
 
-		car.rot_vel.v[Y] = 0.0f;
+		car_body.rot_vel.v[Y] = 0.0f;
 		camera.rot_vel.v[Y] = 0.0f;
 	}
 	if (key == 'q' || key == 'e') {
