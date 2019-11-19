@@ -32,6 +32,9 @@ public:
 	Model(const char* mesh_name, vec3 starting_pos);
 	Model(const char* mesh_name, vec3 starting_pos, bool isComputer);
 	GLuint vao;
+	GLfloat min_x, max_x;
+	GLfloat min_y, max_y;
+	GLfloat min_z, max_z;
 	vec3 pos, vel, rot, rot_vel, scale;
 	bool isMoving, isTurningLeft, isTurningRight, isAI;
 	Model::ModelData model_data;

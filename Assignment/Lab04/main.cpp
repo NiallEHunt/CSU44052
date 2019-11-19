@@ -311,6 +311,7 @@ void display() {
 	int view_mat_location = glGetUniformLocation(shaderProgramID, "view");
 	int proj_mat_location = glGetUniformLocation(shaderProgramID, "proj");
 	int texture_number = glGetUniformLocation(shaderProgramID, "texture_number");
+	int light_x_loc = glGetUniformLocation(shaderProgramID, "light_x");
 	int light_z_loc = glGetUniformLocation(shaderProgramID, "light_z");
 
 	// Root of the Hierarchy
@@ -325,6 +326,7 @@ void display() {
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
 
+	glUniform1f(light_x_loc, camera.pos.v[X]);
 	glUniform1f(light_z_loc, camera.pos.v[Z]);
 
 	// 
@@ -614,6 +616,7 @@ void display() {
 
 
 void updateScene() {
+
 	ai_car_body.update();
 	car_body.update();
 	fl_wheel_rim.update(&car_body, true);

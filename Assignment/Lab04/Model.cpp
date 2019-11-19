@@ -65,6 +65,10 @@ ModelData Model::load_mesh(const char* file_name) {
 	printf("  %i meshes\n", scene->mNumMeshes);
 	printf("  %i textures\n", scene->mNumTextures);
 
+	min_x = max_x = scene->mMeshes[0]->mVertices[0].x;
+	min_y = max_y = scene->mMeshes[0]->mVertices[0].y;
+	min_z = max_z = scene->mMeshes[0]->mVertices[0].z;
+	
 	for (unsigned int m_i = 0; m_i < scene->mNumMeshes; m_i++) {
 		const aiMesh* mesh = scene->mMeshes[m_i];
 		printf("    %i vertices in mesh\n", mesh->mNumVertices);
@@ -73,6 +77,19 @@ ModelData Model::load_mesh(const char* file_name) {
 			if (mesh->HasPositions()) {
 				const aiVector3D* vp = &(mesh->mVertices[v_i]);
 				modelData.mVertices.push_back(vec3(vp->x, vp->y, vp->z));
+
+				if (vp->x < min_x)
+					min_x = vp->x;
+				if (vp->x > max_x)
+					max_x = vp->x;
+				if (vp->y < min_y)
+					min_y = vp->y;
+				if (vp->y > max_y)
+					max_y = vp->y;
+				if (vp->z < min_z)
+					min_z = vp->z;
+				if (vp->z > max_z)
+					max_z = vp->z;
 			}
 			if (mesh->HasNormals()) {
 				const aiVector3D* vn = &(mesh->mNormals[v_i]);

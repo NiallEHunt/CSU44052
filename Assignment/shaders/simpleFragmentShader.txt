@@ -3,10 +3,11 @@
 in vec3 pos_eye, normal_eye;
 in vec2 TexCoord;
 uniform mat4 view;
+uniform float light_x;
 uniform float light_z;
 
 // fixed point light properties
-vec3 light_pos_world = vec3 (0.0, 40.0, light_z);
+vec3 light_pos_world = vec3 (light_x, 40.0, light_z);
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
 vec3 La = vec3 (0.3, 0.3, 0.3); // grey ambient colour
