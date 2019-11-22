@@ -623,9 +623,10 @@ void display() {
 
 bool collision(Model* model1, Model* model2)
 {
-	return (&model1->max_vec.v[0] >= &model2->min_vec.v[0] && &model2->max_vec.v[0] >= &model1->min_vec.v[0]) &&
-               (&model1->max_vec.v[1] >= &model2->min_vec.v[1] && &model2->max_vec.v[1] >= &model1->min_vec.v[1]) &&
-               (&model1->max_vec.v[2] >= &model2->min_vec.v[2] && &model2->max_vec.v[2] >= &model1->min_vec.v[2]);
+	bool result = (&model1->max_vec.v[0] >= &model2->min_vec.v[0] && &model2->max_vec.v[0] >= &model1->min_vec.v[0]) &&
+		(&model1->max_vec.v[1] >= &model2->min_vec.v[1] && &model2->max_vec.v[1] >= &model1->min_vec.v[1]) &&
+		(&model1->max_vec.v[2] >= &model2->min_vec.v[2] && &model2->max_vec.v[2] >= &model1->min_vec.v[2]);
+	return result;
 }
 
 
